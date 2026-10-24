@@ -177,7 +177,7 @@
         .btn-control:active { transform: scale(0.96); }
 
         .capa-juego { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; overflow-y: auto; }
-        .game-canvas { background: white; border-radius: 25px; width: 100%; flex-grow: 1; touch-action: none; min-height: 300px; }
+        .game-canvas { background: white; border-radius: 25px; width: 100%; flex: none; touch-action: none; }
         .fondo-mision { background: #FFF3E0; }
         .fondo-dictado { background: #ECEFF1; }
 
@@ -951,6 +951,7 @@
         unirListaNumerosActual: [],
         matchPendiente: null, matchCompletadosNivel: 0, matchTotalPares: 3,
         dictadoHechos: [],
+        tokenModo: 0,
         bloqueado: false,
         voice: null
     };
@@ -1035,8 +1036,10 @@
         if (!synth) return cb?.();
         synth.cancel();
         const miId = ++hablaId;
-        if (!sonidoActivo('voz')) { setTimeout(() => { if (miId === hablaId && cb) cb(); }, 700); return; }
-        const fin = unaVez(() => { if (miId === hablaId && cb) cb(); }, texto);
+        const tk = state.tokenModo;
+        const sigue = () => { if (miId === hablaId && tk === state.tokenModo && cb) cb(); };
+        if (!sonidoActivo('voz')) { setTimeout(sigue, 700); return; }
+        const fin = unaVez(sigue, texto);
         let utterance = new SpeechSynthesisUtterance(texto);
         utterance.lang = currentLang === 'en' ? 'en-US' : 'es-ES';
         if (currentLang === 'en') {
@@ -1060,8 +1063,10 @@
     function hablarNumero(numero, cb) {
         let texto = numero.toString();
         if (!synth) return cb?.();
-        if (!sonidoActivo('voz')) { setTimeout(() => cb?.(), 400); return; }
-        const fin = unaVez(cb, texto);
+        const tk = state.tokenModo;
+        const sigue = () => { if (tk === state.tokenModo && cb) cb(); };
+        if (!sonidoActivo('voz')) { setTimeout(sigue, 400); return; }
+        const fin = unaVez(sigue, texto);
         let utterance = new SpeechSynthesisUtterance(texto);
         utterance.lang = currentLang === 'en' ? 'en-US' : 'es-ES';
         utterance.rate = 1.0;
@@ -1169,6 +1174,7 @@
 
     function abrirFinal() {
         document.getElementById('modo-final').style.display = 'flex';
+        state.ultimaInstruccion = translations[currentLang].final_congrats(state.nino);
         state.retosSesion = (state.retosSesion || 0) + 1;
         const premio = document.getElementById('premio');
         const nuevo = ganarSticker();
@@ -1187,6 +1193,7 @@
 
     // ---------- PANEL DEL ADULTO (mantener presionado 1.5 s) ----------
     function tr(es, en) { return currentLang === 'en' ? en : es; }
+    function esc(t) { return String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
     function abrirPanelAdulto() {
         const fondo = document.createElement('div');
         fondo.className = 'dlg-fondo';
@@ -1204,7 +1211,7 @@
         };
         function estrellas(n) { return '★'.repeat(Math.min(n,10)) + '☆'.repeat(Math.max(0,10-Math.min(n,10))); }
         function pintar() {
-            let html = `<h3>👤 ${tr('Panel del adulto','Adult panel')} · ${state.avatar} ${state.nino}</h3>`;
+            let html = `<h3>👤 ${tr('Panel del adulto','Adult panel')} · ${esc(state.avatar)} ${esc(state.nino)}</h3>`;
             html += `<h4>${tr('Nivel de dificultad','Difficulty level')}</h4><p style="font-size:13px;color:#78909C;margin:0 0 4px">${tr('Se ajusta solo: 3 aciertos seguidos suben, 2 errores bajan. Puedes cambiarlo aquí.','Adjusts by itself: 3 correct in a row go up, 2 errors go down. You can change it here.')}</p>`;
             Object.keys(NIVELES).forEach(j => {
                 const n = getNivel(j);
@@ -1675,6 +1682,8 @@
         state.ctxActual = canvas.getContext('2d');
         resizeCanvas(canvas);
         crearAlbumMisionDinamico();
+        resizeCanvas(canvas);
+        requestAnimationFrame(() => resizeCanvas(canvas));
         cargarSiguienteMisionDinamico();
         if (animFrame) cancelAnimationFrame(animFrame);
         animFrame = requestAnimationFrame(loopBurbujas);
@@ -1716,6 +1725,7 @@
         const target = state.listaNumerosActual[state.progreso];
         document.getElementById('mision-dinamico-target').innerText = target;
         state.erroresPregunta = 0;
+        state.bloqueado = false;
         generarBurbujas(target, state.canvasActual, true);
         instruir(translations[currentLang].find_number_speech(target));
     }
@@ -1739,6 +1749,8 @@
         state.ctxActual = canvas.getContext('2d');
         resizeCanvas(canvas);
         crearSecuenciaDictadoDinamico();
+        resizeCanvas(canvas);
+        requestAnimationFrame(() => resizeCanvas(canvas));
         cargarSiguienteDictadoDinamico();
         if (animFrame) cancelAnimationFrame(animFrame);
         animFrame = requestAnimationFrame(loopBurbujas);
@@ -1786,6 +1798,7 @@
             return;
         }
         const target = elegirConPeso(state.dictadoPendientes);
+        state.bloqueado = false;
         state.dictadoTarget = target;
         state.erroresPregunta = 0;
         mostrarPista(false);
@@ -1800,8 +1813,14 @@
         const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
         const x = cx * ((canvas.logicW || canvas.width)/rect.width);
         const y = cy * ((canvas.logicH || canvas.height)/rect.height);
-        for(let b of state.burbujas) {
-            if(Math.hypot(x-b.x, y-b.y) < b.r + 8 && !b.ok) {
+        // La burbuja más cercana al dedo (si se cruzan dos, gana la que está justo debajo)
+        let cercana = null, dMin = Infinity;
+        for (const b of state.burbujas) {
+            const d = Math.hypot(x-b.x, y-b.y);
+            if (d < b.r + 8 && d < dMin) { dMin = d; cercana = b; }
+        }
+        for(let b of (cercana ? [cercana] : [])) {
+            if(!b.ok) {
                 // Error suave: decir el número tocado y volver a pedir el correcto, sin castigo
                 b.color = "#FF8A80";
                 setTimeout(() => { b.color = b.colorBase; }, 600);
@@ -1813,11 +1832,10 @@
                 if (modo === 'dictado' && state.erroresPregunta >= 2) mostrarPista(true);
                 return;
             }
-            if(Math.hypot(x-b.x, y-b.y) < b.r + 8 && b.ok) {
+            if(b.ok) {
                 const numAcertado = b.val;
                 if (!state.erroresPregunta && !state.pistaUsada) { registrar('burbujas', 'acierto'); marcarNumero(numAcertado, true); }
-                state.bloqueado = true;
-                setTimeout(() => { state.bloqueado = false; }, 900);
+                state.bloqueado = true;   // se libera al cargar el siguiente número
                 if (modo === 'mision') {
                     if (state.progreso >= state.listaNumerosActual.length) return;
                     const numActual = state.listaNumerosActual[state.progreso];
@@ -1880,9 +1898,11 @@
     function iniciarConteoRegresivo() {
         const conteoDiv = document.getElementById('conteo-regresivo');
         let contador = 3;
+        const tk = state.tokenModo;
         conteoDiv.innerText = contador;
         hablar('3');
         const intervalo = setInterval(() => {
+            if (tk !== state.tokenModo) { clearInterval(intervalo); conteoDiv.innerText = ''; return; }
             contador--;
             if (contador > 0) {
                 conteoDiv.innerText = contador;
@@ -1893,7 +1913,7 @@
                 clearInterval(intervalo);
                 setTimeout(() => {
                     conteoDiv.innerText = "";
-                    despegueFinal();
+                    if (tk === state.tokenModo) despegueFinal();
                 }, 1000);
             }
         }, 1000);
@@ -1902,12 +1922,13 @@
     function despegueFinal() {
         const cohete = document.getElementById('cohete-icono');
         const fuego = document.getElementById('cohete-fuego');
+        const tk = state.tokenModo;
         fuego.classList.add('encendido');
         cohete.classList.add('cohete-despegar');
         setTimeout(() => {
             cohete.classList.remove('cohete-despegar');
             fuego.classList.remove('encendido');
-            mostrarFinal();
+            if (tk === state.tokenModo) mostrarFinal();
         }, 2500);
     }
 
@@ -2103,6 +2124,7 @@
                 setTimeout(() => info.remove(), 3000);
             }
             const trofeo = document.createElement('div');
+            trofeo.id = 'trofeo-vincular';
             trofeo.innerText = '🏆';
             trofeo.style.position = 'fixed';
             trofeo.style.top = '30%';
@@ -2113,9 +2135,11 @@
             document.body.appendChild(trofeo);
             mostrarConfeti();
             const nombre = state.nino;
+            const tkU = state.tokenModo;
             hablar(translations[currentLang].complete_link_congrats(nombre), () => {
                 setTimeout(() => {
                     trofeo.remove();
+                    if (tkU !== state.tokenModo) return;
                     document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
                     abrirFinal();
                     hablar(translations[currentLang].final_congrats(nombre));
@@ -2344,7 +2368,8 @@
         if (state.progreso >= 10) {
             mostrarConfeti();
             playFanfarriaGrave(2);
-            setTimeout(mostrarFinal, 900);
+            const tk = state.tokenModo;
+            setTimeout(() => { if (tk === state.tokenModo) mostrarFinal(); }, 900);
             return;
         }
         const cfg = RETOS[tipo];
@@ -2574,10 +2599,16 @@
         const isFemale = state.genero === 'nina';
         let saludo = translations[currentLang].welcome_msg(nombreCompleto, isFemale);
         
+        sugerirModo();
+        actualizarCuentaColeccion();
+        const tkInicio = state.tokenModo;
         const speak = () => {
+            // Si el niño ya tocó un reto, no se interrumpe con el saludo
+            if (tkInicio !== state.tokenModo) return;
             hablar(saludo, () => {
-                animarBotonesSecuencia();
-                cambiarModo('bienvenida');
+                if (tkInicio !== state.tokenModo) return;
+                sugerirModo();
+                actualizarCuentaColeccion();
             });
         };
         if (voices.length === 0 && synth) {
@@ -2592,6 +2623,8 @@
 
     // ---------- NAVEGACIÓN ----------
     function cambiarModo(modo) {
+        state.tokenModo++;
+        document.getElementById('trofeo-vincular')?.remove();
         state.bloqueado = false;
         if (modo !== 'bienvenida') { try { localStorage.setItem(`ultimo_modo_${state.nino}`, modo); } catch(e) {} }
         else { setFoco(false); sugerirModo(); actualizarCuentaColeccion(); }

@@ -698,6 +698,28 @@
 <script src="voz.js"></script>
 <script src="adulto.js"></script>
 <script>
+    // ---------- ALMACENAMIENTO CON PREFIJO (estándar jlcaleroh-apps) ----------
+    // Todas las apps comparten el dominio jlcaleroh-apps.github.io: cada clave de Números empieza con "numeros:".
+    const NS_PREFIJO = 'numeros:';
+    const NS = {
+        getItem: k => localStorage.getItem(NS_PREFIJO + k),
+        setItem: (k, v) => localStorage.setItem(NS_PREFIJO + k, v),
+        removeItem: k => localStorage.removeItem(NS_PREFIJO + k),
+        keys: () => Object.keys(localStorage).filter(k => k.startsWith(NS_PREFIJO)).map(k => k.slice(NS_PREFIJO.length)),
+    };
+    // Claves antiguas (sin prefijo) que usaba Números antes del estándar
+    const NS_ANTIGUAS = k => k === 'perfiles' || /^(sonido|coleccion|dificiles|pausa_cada|nivel|ultimo_modo|genero|progreso_mision|progreso_dictado|hechos_dictado|progreso_unir|desbloqueos)_/.test(k);
+    // Migración única: copia cada clave antigua a "numeros:…" y borra la vieja. No pisa datos nuevos.
+    (function migrarClaves() {
+        try {
+            if (localStorage.getItem(NS_PREFIJO + 'migrado') === '1') return;
+            Object.keys(localStorage).filter(NS_ANTIGUAS).forEach(k => {
+                if (localStorage.getItem(NS_PREFIJO + k) === null) localStorage.setItem(NS_PREFIJO + k, localStorage.getItem(k));
+                localStorage.removeItem(k);
+            });
+            localStorage.setItem(NS_PREFIJO + 'migrado', '1');
+        } catch (e) {}
+    })();
     // ---------- TRADUCCIONES ----------
     const translations = {
         es: {
@@ -1066,10 +1088,10 @@
     // Fanfarria grave que se repite 3 veces
     // ---------- SONIDO (ajuste del dispositivo) ----------
     function sonidoActivo(tipo) {   // 'voz' | 'efectos'
-        try { return localStorage.getItem(`sonido_${tipo}`) !== '0'; } catch(e) { return true; }
+        try { return NS.getItem(`sonido_${tipo}`) !== '0'; } catch(e) { return true; }
     }
     function setSonido(tipo, on) {
-        try { localStorage.setItem(`sonido_${tipo}`, on ? '1' : '0'); } catch(e) {}
+        try { NS.setItem(`sonido_${tipo}`, on ? '1' : '0'); } catch(e) {}
         actualizarBotonSonido();
     }
     function actualizarBotonSonido() {
@@ -1217,7 +1239,7 @@
     // ---------- COLECCIÓN DE STICKERS ----------
     const STICKERS_COLECCION = ["🦊","🐼","🐨","🐯","🐸","🐙","🦄","🐢","🦋","🐳","🦕","🐧","🚂","🚁","🚒","🛸","🚜","⛵","🌈","🌋","🪐","☄️","🌻","🍉","🍩","🧁","🎸","🥁","🏀","🎈"];
     function getColeccion() {
-        try { return JSON.parse(localStorage.getItem(`coleccion_${state.nino}`)) || []; } catch(e) { return []; }
+        try { return JSON.parse(NS.getItem(`coleccion_${state.nino}`)) || []; } catch(e) { return []; }
     }
     function ganarSticker() {
         const col = getColeccion();
@@ -1225,7 +1247,7 @@
         if (faltan.length === 0) return null;
         const nuevo = faltan[Math.floor(Math.random() * faltan.length)];
         col.push(nuevo);
-        try { localStorage.setItem(`coleccion_${state.nino}`, JSON.stringify(col)); } catch(e) {}
+        try { NS.setItem(`coleccion_${state.nino}`, JSON.stringify(col)); } catch(e) {}
         return nuevo;
     }
     function actualizarCuentaColeccion() {
@@ -1272,9 +1294,10 @@
     // Respaldo: componente común respaldo.js (igual en todas las apps de jlcaleroh-apps)
     if (window.Respaldo) Respaldo.iniciar({
         app: 'numeros', nombre: 'Números',
-        clave: k => k === 'perfiles' || /^(sonido|coleccion|dificiles|pausa_cada|nivel|ultimo_modo|genero|progreso_mision|progreso_dictado|hechos_dictado|progreso_unir|desbloqueos)_/.test(k),
+        clave: k => k.startsWith(NS_PREFIJO) && k !== NS_PREFIJO + 'migrado',
+        renombrar: k => NS_ANTIGUAS(k) ? NS_PREFIJO + k : k,   // respaldos guardados antes del prefijo
         idioma: () => currentLang, claseBoton: 'no', sinTitulo: true,
-        contarNinos: () => { try { return (JSON.parse(localStorage.getItem('perfiles')) || []).length; } catch (e) { return null; } },
+        contarNinos: () => { try { return (JSON.parse(NS.getItem('perfiles')) || []).length; } catch (e) { return null; } },
     });
     // Prueba de voz: componente común voz.js (igual en todas las apps de jlcaleroh-apps)
     if (window.Voz) Voz.iniciar({
@@ -1367,7 +1390,7 @@
             caja.querySelector('#pa-reset').onclick = () => {
                 preguntar(tr(`¿Borrar todo el progreso, niveles y colección de ${state.nino}? No se puede deshacer.`, `Erase all progress, levels and collection for ${state.nino}? This can't be undone.`), () => {
                     try {
-                        Object.keys(localStorage).filter(k => k.endsWith(`_${state.nino}`) || k.includes(`_${state.nino}_`)).forEach(k => localStorage.removeItem(k));
+                        NS.keys().filter(k => k.endsWith(`_${state.nino}`) || k.includes(`_${state.nino}_`)).forEach(k => NS.removeItem(k));
                     } catch(e) {}
                     actualizarCuentaColeccion();
                     sugerirModo();
@@ -1383,13 +1406,13 @@
     // ---------- NÚMEROS DIFÍCILES ----------
     // Cada error con un número suma 1; cada acierto a la primera resta 1. Los difíciles salen más seguido.
     function getDificiles() {
-        try { return JSON.parse(localStorage.getItem(`dificiles_${state.nino}`)) || {}; } catch(e) { return {}; }
+        try { return JSON.parse(NS.getItem(`dificiles_${state.nino}`)) || {}; } catch(e) { return {}; }
     }
     function marcarNumero(num, acierto) {
         const d = getDificiles();
         const v = (d[num] || 0) + (acierto ? -1 : 1);
         if (v <= 0) delete d[num]; else d[num] = Math.min(v, 9);
-        try { localStorage.setItem(`dificiles_${state.nino}`, JSON.stringify(d)); } catch(e) {}
+        try { NS.setItem(`dificiles_${state.nino}`, JSON.stringify(d)); } catch(e) {}
     }
     // Elige de la lista dando más peso a los números difíciles
     function elegirConPeso(lista) {
@@ -1420,10 +1443,10 @@
     ];
     function getPausaCada() {
         let n = NaN;
-        try { n = parseInt(localStorage.getItem(`pausa_cada_${state.nino}`)); } catch(e) {}
+        try { n = parseInt(NS.getItem(`pausa_cada_${state.nino}`)); } catch(e) {}
         return isNaN(n) ? 2 : n;
     }
-    function setPausaCada(n) { try { localStorage.setItem(`pausa_cada_${state.nino}`, n); } catch(e) {} }
+    function setPausaCada(n) { try { NS.setItem(`pausa_cada_${state.nino}`, n); } catch(e) {} }
     function tocaPausa() {
         const cada = getPausaCada();
         return cada > 0 && (state.retosSesion || 0) >= cada;
@@ -1465,11 +1488,11 @@
     function getNivel(juego) {
         const cfg = NIVELES[juego];
         let n = NaN;
-        try { n = parseInt(localStorage.getItem(`nivel_${juego}_${state.nino}`)); } catch(e) {}
+        try { n = parseInt(NS.getItem(`nivel_${juego}_${state.nino}`)); } catch(e) {}
         return isNaN(n) ? cfg.inicio : Math.min(cfg.max, Math.max(cfg.min, n));
     }
     function setNivel(juego, n) {
-        try { localStorage.setItem(`nivel_${juego}_${state.nino}`, n); } catch(e) {}
+        try { NS.setItem(`nivel_${juego}_${state.nino}`, n); } catch(e) {}
     }
     // resultado: 'acierto' (a la primera) | 'error'
     function registrar(juego, resultado) {
@@ -1502,7 +1525,7 @@
     }
     function sugerirModo() {
         let ultimo = null;
-        try { ultimo = localStorage.getItem(`ultimo_modo_${state.nino}`); } catch(e) {}
+        try { ultimo = NS.getItem(`ultimo_modo_${state.nino}`); } catch(e) {}
         document.querySelectorAll('.tarjeta-modo').forEach(t => {
             t.classList.remove('sugerida');
             t.querySelector('.chip')?.remove();
@@ -1535,56 +1558,56 @@
     }
     function cargarProgresoMision(rangoId) {
         let key = getStorageKey('progreso_mision', rangoId);
-        let prog = localStorage.getItem(key);
+        let prog = NS.getItem(key);
         return prog ? parseInt(prog) : 0;
     }
     function guardarProgresoMision(rangoId, estrellas) {
         let key = getStorageKey('progreso_mision', rangoId);
-        localStorage.setItem(key, estrellas);
+        NS.setItem(key, estrellas);
     }
     function cargarProgresoDictado(rangoId) {
         let key = getStorageKey('progreso_dictado', rangoId);
-        let prog = localStorage.getItem(key);
+        let prog = NS.getItem(key);
         return prog ? parseInt(prog) : 0;
     }
     function guardarProgresoDictado(rangoId, completados) {
         let key = getStorageKey('progreso_dictado', rangoId);
-        localStorage.setItem(key, completados);
+        NS.setItem(key, completados);
     }
     function cargarHechosDictado(rangoId) {
-        try { return JSON.parse(localStorage.getItem(getStorageKey('hechos_dictado', rangoId))) || []; } catch(e) { return []; }
+        try { return JSON.parse(NS.getItem(getStorageKey('hechos_dictado', rangoId))) || []; } catch(e) { return []; }
     }
     function guardarHechosDictado(rangoId, lista) {
-        localStorage.setItem(getStorageKey('hechos_dictado', rangoId), JSON.stringify(lista));
+        NS.setItem(getStorageKey('hechos_dictado', rangoId), JSON.stringify(lista));
     }
     function cargarProgresoUnir(rangoId) {
         let key = getStorageKey('progreso_unir', rangoId);
-        let prog = localStorage.getItem(key);
+        let prog = NS.getItem(key);
         return prog ? parseInt(prog) : 0;
     }
     function guardarProgresoUnir(rangoId, estrellas) {
         let key = getStorageKey('progreso_unir', rangoId);
-        localStorage.setItem(key, estrellas);
+        NS.setItem(key, estrellas);
     }
     function cargarDesbloqueos(tipo) {
         let key = `desbloqueos_${tipo}_${state.nino}`;
-        let desbloqueos = localStorage.getItem(key);
+        let desbloqueos = NS.getItem(key);
         if (desbloqueos) return JSON.parse(desbloqueos);
         else return [1];
     }
     function guardarDesbloqueos(tipo, desbloqueos) {
         let key = `desbloqueos_${tipo}_${state.nino}`;
-        localStorage.setItem(key, JSON.stringify(desbloqueos));
+        NS.setItem(key, JSON.stringify(desbloqueos));
     }
     function cargarDesbloqueosUnir() {
         let key = `desbloqueos_unir_${state.nino}`;
-        let desbloqueos = localStorage.getItem(key);
+        let desbloqueos = NS.getItem(key);
         if (desbloqueos) return JSON.parse(desbloqueos);
         else return [1];
     }
     function guardarDesbloqueosUnir(desbloqueos) {
         let key = `desbloqueos_unir_${state.nino}`;
-        localStorage.setItem(key, JSON.stringify(desbloqueos));
+        NS.setItem(key, JSON.stringify(desbloqueos));
     }
 
     // ---------- SELECCIÓN DE RANGOS ----------
@@ -2571,18 +2594,18 @@
     // ---------- INICIO DE SESIÓN ----------
     // ---------- PERFILES (tocar en vez de escribir) ----------
     function getPerfiles() {
-        try { return JSON.parse(localStorage.getItem('perfiles')) || []; } catch(e) { return []; }
+        try { return JSON.parse(NS.getItem('perfiles')) || []; } catch(e) { return []; }
     }
     function guardarPerfil(nombre, avatar, genero) {
         const lista = getPerfiles().filter(p => p.nombre.toLowerCase() !== nombre.toLowerCase());
         lista.unshift({ nombre, avatar, genero });   // el último que jugó queda primero
-        try { localStorage.setItem('perfiles', JSON.stringify(lista)); } catch(e) {}
+        try { NS.setItem('perfiles', JSON.stringify(lista)); } catch(e) {}
     }
     function quitarPerfil(nombre) {
         const lista = getPerfiles().filter(p => p.nombre !== nombre);
         try {
-            localStorage.setItem('perfiles', JSON.stringify(lista));
-            Object.keys(localStorage).filter(k => k.endsWith(`_${nombre}`) || k.includes(`_${nombre}_`)).forEach(k => localStorage.removeItem(k));
+            NS.setItem('perfiles', JSON.stringify(lista));
+            NS.keys().filter(k => k.endsWith(`_${nombre}`) || k.includes(`_${nombre}_`)).forEach(k => NS.removeItem(k));
         } catch(e) {}
     }
     function pintarPerfiles() {
@@ -2630,7 +2653,7 @@
     document.getElementById('nombre-nino').addEventListener('input', (e) => {
         const n = e.target.value.trim();
         let guardado = null;
-        try { guardado = localStorage.getItem(`genero_${n}`); } catch(err) {}
+        try { guardado = NS.getItem(`genero_${n}`); } catch(err) {}
         if (guardado) marcarGenero(guardado);
         else if (!generoTocado) marcarGenero(n.toLowerCase().endsWith('a') ? 'nina' : 'nino');
     });
@@ -2670,7 +2693,7 @@
     function iniciarSesion(nombreCompleto, avatar) {
         state.nino = nombreCompleto;
         state.genero = generoSeleccionado;
-        try { localStorage.setItem(`genero_${nombreCompleto}`, generoSeleccionado); } catch(e) {}
+        try { NS.setItem(`genero_${nombreCompleto}`, generoSeleccionado); } catch(e) {}
         guardarPerfil(nombreCompleto, avatar, generoSeleccionado);
         state.avatar = avatar;
         document.getElementById('selector-ninos').style.display = 'none';
@@ -2712,7 +2735,7 @@
         state.tokenModo++;
         document.getElementById('trofeo-vincular')?.remove();
         state.bloqueado = false;
-        if (modo !== 'bienvenida') { try { localStorage.setItem(`ultimo_modo_${state.nino}`, modo); } catch(e) {} }
+        if (modo !== 'bienvenida') { try { NS.setItem(`ultimo_modo_${state.nino}`, modo); } catch(e) {} }
         else { setFoco(false); sugerirModo(); actualizarCuentaColeccion(); }
         if (synth) synth.cancel();
         if(modo === 'mision') mostrarSelector('mision');

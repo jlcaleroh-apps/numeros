@@ -28,7 +28,8 @@ Juego web de una sola página para que niños con TDAH aprendan números y lógi
 
 ## Para el adulto
 
-- **👤 Adulto** (mantener presionado 1.5 s): niveles de cada juego, progreso por rango, colección y borrar progreso.
+- Perfiles: la primera vez se escribe el nombre; después el niño solo toca su tarjeta.
+- **👤 Adulto** (mantener presionado 1.5 s): niveles de cada juego, progreso por rango, colección, borrar progreso o quitar el perfil.
 - La voz (niño/niña) se elige en la pantalla de inicio y se recuerda por nombre.
 - Todo se guarda solo en el dispositivo (no hay cuentas ni internet para el progreso).
 

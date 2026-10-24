@@ -573,7 +573,7 @@
         </div>
         <button class="btn-cambio" id="btn-cambiar-nino" data-i18n="change_child">👥 Cambiar niño</button>
         <button class="btn-cambio" id="btn-sonido" style="background:#ECEFF1;color:#455A64;font-size:20px;padding:8px 14px" aria-label="Sonido">🔊</button>
-        <button class="btn-adulto" id="btn-adulto"><span class="carga"></span><span style="position:relative" data-i18n="adult_btn">👤 Adulto</span></button>
+        <button class="btn-adulto" id="btn-adulto"><span style="position:relative" data-i18n="adult_btn">👤 Adulto</span></button>
         <button class="btn-info" id="btn-info" data-i18n="info_btn">ℹ️ Info</button>
     </div>
 </nav>
@@ -695,6 +695,7 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script src="respaldo.js"></script>
 <script src="voz.js"></script>
+<script src="adulto.js"></script>
 <script>
     // ---------- TRADUCCIONES ----------
     const translations = {
@@ -706,7 +707,7 @@
             hint_btn: "💡 Pista",
             voice_label: "🔊 Voz:", voice_boy: "👦 Niño", voice_girl: "👧 Niña",
             who_plays: "¿Quién va a jugar?", new_profile: "Nuevo", back_profiles: "← Volver a los perfiles",
-            adult_btn: "👤 Adulto", hold_to_open: "👤 Mantén presionado para abrir",
+            adult_btn: "👤 Adulto", hold_to_open: "👤 Mantén presionado 2 segundos para abrir",
             my_collection: "Mi colección",
             new_sticker: "¡Sticker nuevo para tu colección!",
             collection_full: "¡Colección completa!",
@@ -820,7 +821,7 @@
             hint_btn: "💡 Hint",
             voice_label: "🔊 Voice:", voice_boy: "👦 Boy", voice_girl: "👧 Girl",
             who_plays: "Who is playing?", new_profile: "New", back_profiles: "← Back to profiles",
-            adult_btn: "👤 Adult", hold_to_open: "👤 Press and hold to open",
+            adult_btn: "👤 Adult", hold_to_open: "👤 Press and hold for 2 seconds to open",
             my_collection: "My collection",
             new_sticker: "New sticker for your collection!",
             collection_full: "Collection complete!",
@@ -1373,25 +1374,8 @@
         }
         pintar();
     }
-    (function configurarBotonAdulto() {
-        const btn = document.getElementById('btn-adulto');
-        let t = null, abierto = false;
-        const empezar = (e) => {
-            e.preventDefault();
-            abierto = false;
-            btn.classList.add('cargando');
-            t = setTimeout(() => { abierto = true; btn.classList.remove('cargando'); abrirPanelAdulto(); }, 1500);
-        };
-        const soltar = () => {
-            if (t) clearTimeout(t);
-            if (btn.classList.contains('cargando') && !abierto) aviso(translations[currentLang].hold_to_open);
-            btn.classList.remove('cargando');
-        };
-        btn.addEventListener('pointerdown', empezar);
-        btn.addEventListener('pointerup', soltar);
-        btn.addEventListener('pointerleave', () => { if (t) clearTimeout(t); btn.classList.remove('cargando'); });
-        btn.addEventListener('contextmenu', e => e.preventDefault());
-    })();
+    // gesto común adulto.js: mantener presionado 2 segundos
+    Adulto.mantener(document.getElementById('btn-adulto'), abrirPanelAdulto, { aviso: () => translations[currentLang].hold_to_open, color: 'rgba(52,152,219,.35)' });
 
     // ---------- NÚMEROS DIFÍCILES ----------
     // Cada error con un número suma 1; cada acierto a la primera resta 1. Los difíciles salen más seguido.

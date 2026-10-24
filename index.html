@@ -470,6 +470,17 @@
         .tarjeta-perfil.agregar { background: rgba(255,255,255,0.2); border: 4px dashed rgba(255,255,255,0.8); box-shadow: none; }
         .tarjeta-perfil.agregar .ava, .tarjeta-perfil.agregar .nom { color: white; }
         .btn-volver-perfiles { background: transparent; border: none; color: white; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; margin-top: 16px; cursor: pointer; text-decoration: underline; }
+
+        /* ===== Pausa de movimiento ===== */
+        .pausa-fondo { position: fixed; inset: 0; z-index: 150000; background: linear-gradient(135deg, #A8E063, #56AB2F); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 20px; text-align: center; color: white; font-family: 'Outfit', sans-serif; }
+        .pausa-fondo .titulo { font-size: clamp(26px, 6vw, 40px); font-weight: 900; }
+        .pausa-fondo .ico { font-size: 140px; line-height: 1; animation: rebote 1s ease-in-out infinite; }
+        .pausa-fondo .accion { font-size: clamp(24px, 5vw, 36px); font-weight: 800; max-width: 600px; }
+        @keyframes rebote { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .pausa-fondo button { position: relative; overflow: hidden; background: white; color: #2E7D32; border: none; border-radius: 50px; padding: 16px 40px; font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 900; cursor: pointer; opacity: 0.5; }
+        .pausa-fondo button.listo { opacity: 1; }
+        .pausa-fondo button .barra { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(76,175,80,0.25); transition: width 8s linear; }
+        .pausa-fondo button.cargando .barra { width: 100%; }
     </style>
 </head>
 <body>
@@ -610,7 +621,7 @@
             <div style="font-size:70px;">🏆</div>
             <h2 data-i18n="completed_challenge">¡Completaste el reto!</h2>
             <div class="premio" id="premio"><span class="sticker" id="premio-sticker"></span><span class="txt" id="premio-txt"></span></div>
-            <button class="btn-control" onclick="cambiarModo('bienvenida')" style="margin-top:20px; font-size:22px; padding:14px 30px;" data-i18n="home_btn">🏠 VOLVER</button>
+            <button class="btn-control" onclick="volverDesdeFinal()" style="margin-top:20px; font-size:22px; padding:14px 30px;" data-i18n="home_btn">🏠 VOLVER</button>
         </div>
     </div>
 </div>
@@ -1065,8 +1076,14 @@
         document.body.appendChild(fondo);
     }
     // Pantalla final: siempre entrega un premio visible
+    function volverDesdeFinal() {
+        cambiarModo('bienvenida');
+        if (tocaPausa()) mostrarPausa();
+    }
+
     function abrirFinal() {
         document.getElementById('modo-final').style.display = 'flex';
+        state.retosSesion = (state.retosSesion || 0) + 1;
         const premio = document.getElementById('premio');
         const nuevo = ganarSticker();
         if (nuevo) {
@@ -1114,10 +1131,22 @@
             rangosUnirConfig.forEach(r => {
                 html += `<div class="fila-nivel"><span>🔗 ${r.nombre}</span><span>${estrellas(cargarProgresoUnir(r.id))}</span></div>`;
             });
-            html += `<div class="fila-nivel"><span>🎁 ${translations[currentLang].my_collection}</span><span>${getColeccion().length}/${STICKERS_COLECCION.length}</span></div>`;
+            const dif = Object.entries(getDificiles()).sort((a, b) => b[1] - a[1]).slice(0, 8);
+            html += `<h4>${tr('Números difíciles','Tricky numbers')}</h4>`;
+            html += dif.length
+                ? `<div class="fila-nivel" style="flex-wrap:wrap; justify-content:flex-start; gap:8px">${dif.map(([n, v]) => `<span style="background:#FFF3E0;border-radius:20px;padding:6px 12px;font-weight:800">${n} <span style="color:#E65100">${'●'.repeat(Math.min(v,5))}</span></span>`).join('')}</div><p style="font-size:13px;color:#78909C;margin:4px 0">${tr('Salen más seguido hasta que los acierte. Los puntos indican cuántos errores recientes.','They appear more often until answered correctly. Dots show recent mistakes.')}</p>`
+                : `<p style="font-size:14px;color:#78909C">${tr('Todavía ninguno. ¡Va muy bien!','None yet. Doing great!')}</p>`;
+            html += `<h4>${tr('Pausas de movimiento','Movement breaks')}</h4>`;
+            const pc = getPausaCada();
+            html += `<div class="fila-nivel"><span>🤸 ${tr('Pausa cada','Break every')}</span><span class="ctrl"><button data-pausa="-1">−</button><span class="val">${pc === 0 ? tr('apagado','off') : `${pc} ${tr('retos','challenges')}`}</span><button data-pausa="1">+</button></span></div>`;
+            html += `<div class="fila-nivel" style="margin-top:12px"><span>🎁 ${translations[currentLang].my_collection}</span><span>${getColeccion().length}/${STICKERS_COLECCION.length}</span></div>`;
             html += `<div class="fila" style="margin-top:22px"><button class="no peligro" id="pa-reset">🗑️ ${tr('Borrar progreso','Erase progress')}</button><button class="no peligro" id="pa-quitar">👋 ${tr('Quitar perfil','Remove profile')}</button><button class="si" id="pa-cerrar">${tr('Listo','Done')}</button></div>`;
             caja.innerHTML = html;
-            caja.querySelectorAll('.fila-nivel button').forEach(b => b.onclick = () => {
+            caja.querySelectorAll('.fila-nivel button[data-pausa]').forEach(b => b.onclick = () => {
+                setPausaCada(Math.min(4, Math.max(0, getPausaCada() + parseInt(b.dataset.pausa))));
+                pintar();
+            });
+            caja.querySelectorAll('.fila-nivel button[data-j]').forEach(b => b.onclick = () => {
                 const j = b.dataset.j, cfg = NIVELES[j];
                 setNivel(j, Math.min(cfg.max, Math.max(cfg.min, getNivel(j) + parseInt(b.dataset.d))));
                 pintar();
@@ -1161,6 +1190,76 @@
         btn.addEventListener('pointerleave', () => { if (t) clearTimeout(t); btn.classList.remove('cargando'); });
         btn.addEventListener('contextmenu', e => e.preventDefault());
     })();
+
+    // ---------- NÚMEROS DIFÍCILES ----------
+    // Cada error con un número suma 1; cada acierto a la primera resta 1. Los difíciles salen más seguido.
+    function getDificiles() {
+        try { return JSON.parse(localStorage.getItem(`dificiles_${state.nino}`)) || {}; } catch(e) { return {}; }
+    }
+    function marcarNumero(num, acierto) {
+        const d = getDificiles();
+        const v = (d[num] || 0) + (acierto ? -1 : 1);
+        if (v <= 0) delete d[num]; else d[num] = Math.min(v, 9);
+        try { localStorage.setItem(`dificiles_${state.nino}`, JSON.stringify(d)); } catch(e) {}
+    }
+    // Elige de la lista dando más peso a los números difíciles
+    function elegirConPeso(lista) {
+        const d = getDificiles();
+        const pesos = lista.map(n => 1 + 2 * (d[n] || 0));
+        let r = Math.random() * pesos.reduce((a, b) => a + b, 0);
+        for (let i = 0; i < lista.length; i++) { r -= pesos[i]; if (r <= 0) return lista[i]; }
+        return lista[lista.length - 1];
+    }
+    // Números que se confunden entre sí: 6↔9 y dígitos invertidos (12↔21)
+    function confundible(n) {
+        if (n === 6) return 9;
+        if (n === 9) return 6;
+        if (n >= 12 && n % 10 !== 0 && Math.floor(n / 10) !== n % 10) return (n % 10) * 10 + Math.floor(n / 10);
+        return null;
+    }
+
+    // ---------- PAUSAS DE MOVIMIENTO ----------
+    // Tras N retos completados, al volver al inicio se propone moverse un momento.
+    const PAUSAS = [
+        { ico: '🦘', es: 'Salta 5 veces como canguro. ¡Cuenta en voz alta!', en: 'Jump 5 times like a kangaroo. Count out loud!' },
+        { ico: '🙆', es: 'Estírate hacia el techo y cuenta hasta 5', en: 'Stretch up to the ceiling and count to 5' },
+        { ico: '🐸', es: 'Agáchate y salta como rana 3 veces', en: 'Crouch and hop like a frog 3 times' },
+        { ico: '👏', es: 'Aplaude 10 veces contando', en: 'Clap 10 times while counting' },
+        { ico: '🎈', es: 'Respira hondo 3 veces, como inflando un globo', en: 'Take 3 deep breaths, like blowing up a balloon' },
+        { ico: '🌀', es: 'Da 2 vueltas despacito', en: 'Turn around slowly 2 times' },
+        { ico: '🦩', es: 'Párate en un pie como flamenco y cuenta hasta 5', en: 'Stand on one foot like a flamingo and count to 5' }
+    ];
+    function getPausaCada() {
+        let n = NaN;
+        try { n = parseInt(localStorage.getItem(`pausa_cada_${state.nino}`)); } catch(e) {}
+        return isNaN(n) ? 2 : n;
+    }
+    function setPausaCada(n) { try { localStorage.setItem(`pausa_cada_${state.nino}`, n); } catch(e) {} }
+    function tocaPausa() {
+        const cada = getPausaCada();
+        return cada > 0 && (state.retosSesion || 0) >= cada;
+    }
+    function mostrarPausa(alTerminar) {
+        state.retosSesion = 0;
+        const p = PAUSAS[Math.floor(Math.random() * PAUSAS.length)];
+        const texto = currentLang === 'en' ? p.en : p.es;
+        const fondo = document.createElement('div');
+        fondo.className = 'pausa-fondo';
+        fondo.innerHTML = `<div class="titulo">${tr('¡Hora de moverse!','Time to move!')}</div><div class="ico">${p.ico}</div><div class="accion"></div><button><span class="barra"></span><span style="position:relative">✅ ${tr('¡Listo!','Done!')}</span></button>`;
+        fondo.querySelector('.accion').innerText = texto;
+        const btn = fondo.querySelector('button');
+        document.body.appendChild(fondo);
+        // El botón se activa cuando la barra se llena (8 s): tiempo para hacer el movimiento, sin reloj que presione
+        requestAnimationFrame(() => btn.classList.add('cargando'));
+        setTimeout(() => btn.classList.add('listo'), 8000);
+        btn.onclick = () => {
+            if (!btn.classList.contains('listo')) { hablar(texto); return; }
+            fondo.remove();
+            hablar(tr('¡Muy bien! Seguimos', 'Great! Let\'s keep going'));
+            if (alTerminar) alTerminar();
+        };
+        hablar(tr('¡Hora de moverse! ', 'Time to move! ') + texto);
+    }
 
     // ---------- DIFICULTAD ADAPTATIVA ----------
     // Cada niño tiene su nivel por juego. 3 aciertos seguidos a la primera → sube; 2 errores seguidos → baja.
@@ -1437,6 +1536,8 @@
     function generarBurbujas(target, canvas, esMision) {
         const otras = [];
         let pool = [target];
+        const c = confundible(target);
+        if (c && state.listaNumerosActual.includes(c) && Math.random() < 0.6) pool.push(c);
         while(pool.length < 3) {
             let r = state.listaNumerosActual.length > 0 ? state.listaNumerosActual[Math.floor(Math.random() * state.listaNumerosActual.length)] : target;
             if(!pool.includes(r)) pool.push(r);
@@ -1585,8 +1686,7 @@
             terminarModo();
             return;
         }
-        const randomIndex = Math.floor(Math.random() * state.dictadoPendientes.length);
-        const target = state.dictadoPendientes[randomIndex];
+        const target = elegirConPeso(state.dictadoPendientes);
         state.dictadoTarget = target;
         state.erroresPregunta = 0;
         mostrarPista(false);
@@ -1608,7 +1708,7 @@
                 setTimeout(() => { b.color = b.colorBase; }, 600);
                 const objetivo = state.burbujas.find(o => o.ok);
                 state.erroresPregunta = (state.erroresPregunta || 0) + 1;
-                if (state.erroresPregunta === 1) registrar('burbujas', 'error');
+                if (state.erroresPregunta === 1) { registrar('burbujas', 'error'); if (objetivo) marcarNumero(objetivo.val, false); }
                 hablar(translations[currentLang].wrong_bubble(b.val, objetivo ? objetivo.val : ''));
                 // Andamiaje: tras 2 intentos en Reconocer, se muestra la pista sola
                 if (modo === 'dictado' && state.erroresPregunta >= 2) mostrarPista(true);
@@ -1616,7 +1716,7 @@
             }
             if(Math.hypot(x-b.x, y-b.y) < b.r + 8 && b.ok) {
                 const numAcertado = b.val;
-                if (!state.erroresPregunta && !state.pistaUsada) registrar('burbujas', 'acierto');
+                if (!state.erroresPregunta && !state.pistaUsada) { registrar('burbujas', 'acierto'); marcarNumero(numAcertado, true); }
                 state.bloqueado = true;
                 setTimeout(() => { state.bloqueado = false; }, 900);
                 if (modo === 'mision') {
@@ -1719,7 +1819,7 @@
         }
         let maxNum = getNivel('contar');
         let erroresPregunta = 0;
-        let numero = Math.floor(Math.random() * maxNum) + 1;
+        let numero = elegirConPeso(generarListaNumeros(1, maxNum));
         let emoji = stickersBase[Math.floor(Math.random()*stickersBase.length)];
         let container = document.getElementById('cohete-objetos');
         container.innerHTML = '';
@@ -1761,7 +1861,7 @@
             btn.onclick = () => {
                 if (state.bloqueado) return;
                 if(op === numero) {
-                    if (erroresPregunta === 0) registrar('contar', 'acierto');
+                    if (erroresPregunta === 0) { registrar('contar', 'acierto'); marcarNumero(numero, true); }
                     state.bloqueado = true;
                     state.progreso++;
                     actualizarEstrellas();
@@ -1778,7 +1878,7 @@
                 } else {
                     btn.classList.add('error-flash');
                     erroresPregunta++;
-                    if (erroresPregunta === 1) registrar('contar', 'error');
+                    if (erroresPregunta === 1) { registrar('contar', 'error'); marcarNumero(numero, false); }
                     hablar(translations[currentLang].try_count_again);
                     contados = 0;
                     container.querySelectorAll('.contar-emoji').forEach(e => { e.classList.remove('contado'); e.querySelector('.marca')?.remove(); });
@@ -1850,7 +1950,7 @@
             btn.onclick = () => {
                 if (state.bloqueado) return;
                 if (o === res) {
-                    if (erroresPregunta === 0) registrar('sumar', 'acierto');
+                    if (erroresPregunta === 0) { registrar('sumar', 'acierto'); marcarNumero(res, true); }
                     state.bloqueado = true;
                     inc.innerText = res;
                     inc.classList.add('success-pop');
@@ -1863,7 +1963,7 @@
                 } else {
                     btn.classList.add('error-flash');
                     erroresPregunta++;
-                    if (erroresPregunta === 1) registrar('sumar', 'error');
+                    if (erroresPregunta === 1) { registrar('sumar', 'error'); marcarNumero(res, false); }
                     hablar(translations[currentLang].try_sum_again);
                     setTimeout(() => btn.classList.remove('error-flash'), 500);
                 }
@@ -2002,6 +2102,8 @@
                 }
             });
         } else {
+            const lado = state.matchPendiente.dataset.tipo === 's' ? state.matchPendiente : el;
+            marcarNumero(parseInt(lado.dataset.val), false);
             state.matchPendiente.classList.add('error-flash');
             el.classList.add('error-flash');
             setTimeout(()=>{
@@ -2290,7 +2392,10 @@
         hablar(translations[currentLang].find_number_speech(state.dictadoTarget));
     };
     document.getElementById('btn-coleccion').onclick = abrirColeccion;
-    document.getElementById('btn-foco-inicio').onclick = () => cambiarModo('bienvenida');
+    document.getElementById('btn-foco-inicio').onclick = () => {
+        if (document.getElementById('modo-final').style.display === 'flex') volverDesdeFinal();
+        else cambiarModo('bienvenida');
+    };
     document.getElementById('btn-foco-repetir').onclick = () => {
         if (state.ultimaInstruccion && !state.bloqueado) hablar(state.ultimaInstruccion);
     };

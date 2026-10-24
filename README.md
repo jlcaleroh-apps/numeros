@@ -25,6 +25,8 @@ Juego web de una sola página para que niños con TDAH aprendan números y lógi
 - Modo foco: durante el juego solo quedan 🏠 y 🔊 Otra vez.
 - Marco de 5 y de 10 para ver cantidades de un vistazo.
 - Cada reto completado da un sticker para "Mi colección" (30 en total).
+- Números difíciles: los que más falla salen más seguido; 6↔9 y 12↔21 aparecen juntos para practicar la diferencia.
+- Pausas de movimiento: cada 2 retos (ajustable) propone moverse un momento.
 
 ## Para el adulto
 

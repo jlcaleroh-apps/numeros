@@ -27,6 +27,8 @@ Juego web de una sola página para que niños con TDAH aprendan números y lógi
 - Cada reto completado da un sticker para "Mi colección" (30 en total).
 - Números difíciles: los que más falla salen más seguido; 6↔9 y 12↔21 aparecen juntos para practicar la diferencia.
 - Pausas de movimiento: cada 2 retos (ajustable) propone moverse un momento.
+- Del 11 al 40, el álbum muestra decenas como marcos de 10 llenos + unidades (valor posicional).
+- Botón 🔊/🔇 para silenciar la voz; en el panel también se pueden apagar los efectos.
 
 ## Para el adulto
 
@@ -34,6 +36,12 @@ Juego web de una sola página para que niños con TDAH aprendan números y lógi
 - **👤 Adulto** (mantener presionado 1.5 s): niveles de cada juego, progreso por rango, colección, borrar progreso o quitar el perfil.
 - La voz (niño/niña) se elige en la pantalla de inicio y se recuerda por nombre.
 - Todo se guarda solo en el dispositivo (no hay cuentas ni internet para el progreso).
+
+## Instalar en el iPad (funciona sin internet)
+
+1. Abre la app en **Safari**.
+2. Toca **Compartir** (cuadro con flecha) → **Agregar a pantalla de inicio**.
+3. Ábrela una vez con internet; después funciona sin conexión.
 
 ## Créditos
 

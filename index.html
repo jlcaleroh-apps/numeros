@@ -692,6 +692,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="respaldo.js"></script>
 <script>
     // ---------- TRADUCCIONES ----------
     const translations = {
@@ -1256,6 +1257,13 @@
 
     // ---------- PANEL DEL ADULTO (mantener presionado 1.5 s) ----------
     function tr(es, en) { return currentLang === 'en' ? en : es; }
+    // Respaldo: componente común respaldo.js (igual en todas las apps de jlcaleroh-apps)
+    if (window.Respaldo) Respaldo.iniciar({
+        app: 'numeros', nombre: 'Números',
+        clave: k => k === 'perfiles' || /^(sonido|coleccion|dificiles|pausa_cada|nivel|ultimo_modo|genero|progreso_mision|progreso_dictado|hechos_dictado|progreso_unir|desbloqueos)_/.test(k),
+        idioma: () => currentLang, claseBoton: 'no', sinTitulo: true,
+        contarNinos: () => { try { return (JSON.parse(localStorage.getItem('perfiles')) || []).length; } catch (e) { return null; } },
+    });
     function esc(t) { return String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
     function abrirPanelAdulto() {
         const fondo = document.createElement('div');
@@ -1302,8 +1310,10 @@
             const pc = getPausaCada();
             html += `<div class="fila-nivel"><span>🤸 ${tr('Pausa cada','Break every')}</span><span class="ctrl"><button data-pausa="-1">−</button><span class="val">${pc === 0 ? tr('apagado','off') : `${pc} ${tr('retos','challenges')}`}</span><button data-pausa="1">+</button></span></div>`;
             html += `<div class="fila-nivel" style="margin-top:12px"><span>🎁 ${translations[currentLang].my_collection}</span><span>${getColeccion().length}/${STICKERS_COLECCION.length}</span></div>`;
+            html += `<h4>${tr('Respaldo del progreso','Progress backup')}</h4><div id="pa-respaldo"></div>`;
             html += `<div class="fila" style="margin-top:22px"><button class="no peligro" id="pa-reset">🗑️ ${tr('Borrar progreso','Erase progress')}</button><button class="no peligro" id="pa-quitar">👋 ${tr('Quitar perfil','Remove profile')}</button><button class="si" id="pa-cerrar">${tr('Listo','Done')}</button></div>`;
             caja.innerHTML = html;
+            if (window.Respaldo) Respaldo.montar(caja.querySelector('#pa-respaldo'));
             caja.querySelectorAll('.fila-nivel button[data-sonido]').forEach(b => b.onclick = () => {
                 setSonido(b.dataset.sonido, !sonidoActivo(b.dataset.sonido));
                 pintar();

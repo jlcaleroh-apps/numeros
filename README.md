@@ -24,6 +24,13 @@ Juego web de una sola página para que niños con TDAH aprendan números y lógi
 - Dificultad adaptativa por niño: 3 aciertos seguidos suben el nivel, 2 errores lo bajan.
 - Modo foco: durante el juego solo quedan 🏠 y 🔊 Otra vez.
 - Marco de 5 y de 10 para ver cantidades de un vistazo.
+- Cada reto completado da un sticker para "Mi colección" (30 en total).
+
+## Para el adulto
+
+- **👤 Adulto** (mantener presionado 1.5 s): niveles de cada juego, progreso por rango, colección y borrar progreso.
+- La voz (niño/niña) se elige en la pantalla de inicio y se recuerda por nombre.
+- Todo se guarda solo en el dispositivo (no hay cuentas ni internet para el progreso).
 
 ## Créditos
 

@@ -318,6 +318,21 @@
         /* Otros estilos existentes (match, sumas, etc.) */
         .match-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
         .match-columna { flex: 1; display: flex; flex-direction: column; gap: 15px; min-width: 150px; }
+        .marco { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; background: white; border: 3px solid #90A4AE; border-radius: 12px; padding: 4px; }
+        .marco .celda { width: clamp(30px, 5.2vw, 46px); aspect-ratio: 1; border: 2px solid #CFD8DC; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 3.4vw, 30px); line-height: 1; }
+        .marco .celda.vacia { background: #F4F6F8; border-style: dashed; }
+        .suma-grid .marco .celda { width: clamp(26px, 4.4vw, 40px); font-size: clamp(16px, 3vw, 26px); }
+        .match-item .marco { pointer-events: none; }
+        .match-columna { flex: 0 1 auto; min-width: 0; }
+        .match-item:has(.marco) { padding: 10px; }
+        /* Sumar: en iPad vertical la respuesta pasa debajo para que no se corte */
+        @media (max-width: 1200px) {
+            .bloque-sumas-completo { flex-wrap: wrap !important; gap: 14px !important; padding: 14px !important; }
+            .seccion-pregunta { gap: 10px; padding: 12px; }
+            .seccion-respuesta { width: 100%; justify-content: center; flex-wrap: wrap; }
+            .contenedor-opciones-vertical { flex-direction: row !important; }
+            .bloque-sumas-completo > .signo { display: none; }
+        }
         .match-item { background: white; border: 3px solid #E3F2FD; border-radius: 20px; padding: 20px; text-align: center; cursor: pointer; transition: 0.1s; font-size: 28px; min-height: 100px; display: flex; align-items: center; justify-content: center; }
         .match-item.selected { border-color: #3498DB; background: #E3F2FD; transform: scale(1.02); }
         .match-item.matched { border-color: #4CAF50; background: #E8F5E9; opacity: 0.6; cursor: default; }
@@ -730,6 +745,16 @@
         return stickersBase[(numero - 1) % stickersBase.length];
     }
     
+    // Marco de 5 / marco de 10: casillas de 5 en 5, se llenan de izquierda a derecha y de arriba abajo.
+    // Permite ver la cantidad de un vistazo (subitización) en lugar de contar uno por uno.
+    function marcoDiez(n, emoji, casillas) {
+        let html = `<div class="marco" role="img" aria-label="${n}">`;
+        for (let i = 0; i < casillas; i++) {
+            html += i < n ? `<span class="celda">${emoji}</span>` : `<span class="celda vacia"></span>`;
+        }
+        return html + '</div>';
+    }
+
     function formatearCantidad(num, emoji) {
         let decenas = Math.floor(num / 10);
         let unidades = num % 10;
@@ -1511,10 +1536,8 @@
         let emoji = stickersBase[Math.floor(Math.random()*stickersBase.length)];
         const grid1 = document.getElementById('sum-grid-1');
         const grid2 = document.getElementById('sum-grid-2');
-        grid1.innerHTML = '';
-        grid2.innerHTML = '';
-        for (let i=0; i<a; i++) grid1.innerHTML += `<span style="font-size:28px;">${emoji}</span>`;
-        for (let i=0; i<b; i++) grid2.innerHTML += `<span style="font-size:28px;">${emoji}</span>`;
+        grid1.innerHTML = marcoDiez(a, emoji, 5);
+        grid2.innerHTML = marcoDiez(b, emoji, 5);
         let opciones = [res];
         let posibles = [res-1, res+1, res-2, res+2].filter(v=>v>=1 && v<=10 && v!==res);
         posibles = [...new Set(posibles)];
@@ -1625,7 +1648,7 @@
             div.className = 'match-item';
             let sticker = getStickerForNumber(n);
             let txt = '';
-            for(let i=0;i<n;i++) txt += sticker;
+            txt = marcoDiez(n, sticker, state.unirRangoActual.fin <= 5 ? 5 : 10);
             div.innerHTML = txt;
             div.dataset.val = n;
             div.dataset.tipo = 's';

@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Misión Aprendizaje - Modo TDAH</title>
+    <style>
+        /* Estilos generales (base) - sin cambios importantes */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+
+        * { box-sizing: border-box; user-select: none; touch-action: manipulation; }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Outfit', sans-serif; background: #F8FBFF; color: #2C3E50; }
+        body { display: flex; flex-direction: column; height: 100dvh; }
+
+        /* Pantalla de inicio */
+        #selector-ninos {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #6DD5FA, #2980B9); z-index: 999999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .titulo-inicio { color: white; margin-bottom: 30px; font-size: clamp(32px,8vw,48px); font-weight: 900; text-align: center; }
+        .entrada-nombre {
+            background: white; border-radius: 60px; padding: 15px 25px; width: 90%; max-width: 400px;
+            border: none; font-size: 24px; font-family: 'Outfit', sans-serif; text-align: center;
+            margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .selector-avatares {
+            display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px;
+        }
+        .avatar-opcion {
+            background: white; border-radius: 60px; padding: 15px; font-size: 48px; cursor: pointer;
+            transition: all 0.3s; border: 4px solid transparent; width: 90px; text-align: center;
+        }
+        .avatar-opcion.seleccionado { border-color: #FFD700; background: #FFF3E0; transform: scale(1.05); }
+        .btn-jugar {
+            background: #FF9800; color: white; border: none; border-radius: 60px; padding: 15px 40px;
+            font-size: 28px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: 0.2s;
+        }
+        .btn-jugar:active { transform: scale(0.96); }
+        .idioma-selector {
+            margin-top: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 40px;
+            padding: 8px 16px;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .idioma-selector select {
+            background: white;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 16px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Barra superior */
+        #navbar-global {
+            display: none; height: auto; min-height: 70px; background: white; border-bottom: 2px solid #E1E8ED;
+            align-items: center; justify-content: space-between; padding: 8px 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0; flex-wrap: wrap;
+        }
+        .nav-perfil { display: flex; align-items: center; gap: 12px; }
+        .btn-cambio {
+            background: #FF9800; color: white; border: none; padding: 10px 18px; border-radius: 40px;
+            font-weight: 800; cursor: pointer; margin-left: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+        .btn-cambio:active { transform: scale(0.96); }
+        .btn-info {
+            background: #3498DB; color: white; border: none; padding: 10px 18px; border-radius: 40px;
+            font-weight: 800; cursor: pointer; margin-left: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+        .btn-info:active { transform: scale(0.96); }
+        .idioma-nav {
+            background: #F1F4F8;
+            border-radius: 30px;
+            padding: 5px 12px;
+            margin-left: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+        }
+        .idioma-nav select {
+            border: none;
+            background: transparent;
+            font-family: 'Outfit', sans-serif;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Modal de información */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 100000;
+            display: none; justify-content: center; align-items: center;
+        }
+        .modal-contenido {
+            background: white; border-radius: 40px; max-width: 500px; width: 90%;
+            padding: 25px; text-align: center; font-family: 'Outfit', sans-serif;
+            max-height: 80%; overflow-y: auto;
+        }
+        .modal-contenido h3 { color: #3498DB; margin-top: 0; }
+        .modal-contenido p { text-align: left; margin: 10px 0; font-size: 14px; }
+        .modal-contenido button {
+            background: #4CAF50; color: white; border: none; border-radius: 40px;
+            padding: 10px 20px; font-weight: bold; margin-top: 15px; cursor: pointer;
+        }
+
+        /* Menú principal */
+        .menu-principal {
+            display: flex; gap: 8px; background: white; padding: 5px 12px; border-radius: 60px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); flex-wrap: wrap;
+        }
+        .btn-modo {
+            padding: 10px 14px; border-radius: 40px; border: none; font-weight: 800; font-size: 13px;
+            background: #F1F4F8; cursor: pointer; transition: all 0.2s;
+            display: flex; gap: 5px;
+        }
+        .btn-modo.activo { background: #3498DB; color: white; }
+        .btn-modo.especial { background: #FFF3E0; color: #FF5722; }
+        .btn-animate { animation: pulseGlow 0.5s ease-in-out; }
+        @keyframes pulseGlow {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(52,152,219,0.7); }
+            50% { transform: scale(1.05); background-color: #F39C12; color: white; box-shadow: 0 0 0 10px rgba(243,156,18,0.3); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(52,152,219,0); }
+        }
+
+        .contenedor-principal { display: none; flex: 1; min-height: 0; width: 100%; overflow: hidden; flex-direction: column; }
+        .seccion-juego { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; background: #F4F7F9; padding: 10px; overflow-y: auto; }
+        .estrellas-progreso { display: flex; gap: 12px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
+        .estrella { font-size: 32px; color: #ddd; transition: 0.2s; }
+        .estrella.activa { color: #FFD700; text-shadow: 0 0 5px gold; }
+
+        /* Álbum y secuencia */
+        .album-mision { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 15px; background: #FFF8E7; border-radius: 30px; padding: 10px; border: 2px solid #F39C12; }
+        .tarjeta-numero { background: #F8FAFC; border-radius: 20px; width: 80px; text-align: center; border: 2px solid #E1E8ED; transition: all 0.2s; }
+        .tarjeta-numero.completado { background: #E8F5E9; border-color: #4CAF50; }
+        .tarjeta-numero .numero { font-size: 18px; font-weight: 900; background: #FFF; border-radius: 20px 20px 0 0; padding: 5px; }
+        .tarjeta-numero .stickers { font-size: 14px; padding: 5px; word-break: break-word; line-height: 1.2; }
+        .stickers span { display: inline-block; margin: 0 1px; }
+        .stickers .diez { font-size: 2.2em; display: inline-block; transform: scale(1.4); margin: 0 3px; }
+
+        .secuencia-numeros { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; background: #EAECEE; border-radius: 30px; padding: 10px; margin-bottom: 15px; border: 2px solid #3498DB; }
+        .num-secuencia { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: #F1F4F8; border-radius: 25px; font-size: 18px; font-weight: bold; transition: all 0.2s; }
+        .num-secuencia.completado { background: #4CAF50; color: white; transform: scale(1.05); }
+        .repaso-animate { animation: repasoFlash 0.4s ease-in-out; background-color: #FFD700 !important; transform: scale(1.05); }
+        @keyframes repasoFlash { 0% { background-color: #FFD700; transform: scale(1); } 50% { background-color: #FFA500; transform: scale(1.1); } 100% { background-color: #FFD700; transform: scale(1); } }
+
+        .selector-rangos { background: white; border-radius: 40px; padding: 20px; margin: 20px; text-align: center; max-width: 500px; width: 100%; }
+        .lista-rangos { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 20px; }
+        .btn-rango { background: #F1F4F8; border: 2px solid #E1E8ED; border-radius: 30px; padding: 15px 25px; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; min-width: 100px; }
+        .btn-rango.disponible { background: #E3F2FD; border-color: #3498DB; }
+        .btn-rango.bloqueado { background: #F5F5F5; color: #999; cursor: not-allowed; opacity: 0.6; }
+        .btn-rango.completado { background: #C8E6C9; border-color: #4CAF50; }
+        .btn-control { background: #E3F2FD; border: none; border-radius: 40px; padding: 8px 20px; font-weight: bold; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; font-size: 16px; transition: 0.2s; }
+        .btn-control:active { transform: scale(0.96); }
+
+        .capa-juego { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; overflow-y: auto; }
+        .game-canvas { background: white; border-radius: 25px; width: 100%; flex-grow: 1; touch-action: none; min-height: 300px; }
+        .fondo-mision { background: #FFF3E0; }
+        .fondo-dictado { background: #ECEFF1; }
+
+        /* CONTAR: objetos grandes, opciones pequeñas, separación */
+        .contar-layout {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: stretch;
+            gap: 30px;
+            width: 100%;
+            max-width: 900px;
+            margin: 10px;
+        }
+        .contar-juego {
+            flex: 2;
+            background: white;
+            border-radius: 40px;
+            padding: 20px;
+            min-width: 250px;
+        }
+        .cohete-area {
+            flex: 1;
+            background: #FFF3E0;
+            border-radius: 40px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 180px;
+            min-height: 350px;
+            position: relative;
+            overflow: visible;
+        }
+        .cohete-imagen {
+            font-size: 80px;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+            position: relative;
+            display: inline-block;
+            filter: drop-shadow(0 0 5px orange);
+            animation: pulseLight 1s infinite alternate;
+        }
+        @keyframes pulseLight {
+            0% { filter: drop-shadow(0 0 5px orange); text-shadow: 0 0 5px orange; }
+            100% { filter: drop-shadow(0 0 15px red); text-shadow: 0 0 15px red; }
+        }
+        .fuego {
+            font-size: 30px;
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.2s;
+            filter: drop-shadow(0 0 5px orange);
+            animation: firePulse 0.3s infinite alternate;
+        }
+        @keyframes firePulse {
+            from { font-size: 25px; filter: drop-shadow(0 0 3px orange); }
+            to { font-size: 35px; filter: drop-shadow(0 0 10px red); }
+        }
+        .cohete-despegar {
+            animation: despegueLargo 2.5s forwards;
+        }
+        @keyframes despegueLargo {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            20% { transform: translateY(-80px) rotate(5deg) scale(1.2); }
+            60% { transform: translateY(-250px) rotate(15deg) scale(1.5); opacity: 0.8; }
+            100% { transform: translateY(-500px) rotate(25deg) scale(2); opacity: 0; visibility: hidden; }
+        }
+        .contar-objetos-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .contar-emoji { font-size: 64px; cursor: pointer; position: relative; transition: transform 0.15s, opacity 0.15s; }
+        .contar-emoji.contado { opacity: 0.45; transform: scale(0.9); }
+        .contar-emoji .marca { position: absolute; top: -6px; right: -6px; background: #4CAF50; color: white; font-size: 18px; font-weight: 900; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+        .contar-pista { text-align: center; font-size: 16px; color: #7F8C8D; margin-top: -5px; }
+        .separador {
+            margin: 25px auto;
+            border-top: 4px dashed #FF9800;
+            width: 100%;
+        }
+        .contar-opciones {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .contar-boton {
+            background: white;
+            border: 3px solid #E3F2FD;
+            border-radius: 60px;
+            padding: 8px 16px;
+            font-size: 32px;
+            font-weight: 900;
+            cursor: pointer;
+            min-width: 80px;
+            text-align: center;
+            transition: 0.1s;
+        }
+        .contar-boton:active { transform: scale(0.96); }
+        .error-flash { background-color: #FFEBEE !important; border-color: #FF5252 !important; }
+        .conteo-regresivo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #FF5722;
+            text-align: center;
+        }
+
+        /* Vincular: animación de trofeo mejorada */
+        .trofeo-animado {
+            animation: girarTrofeo 0.8s ease-in-out, brilloTrofeo 0.5s infinite alternate;
+            font-size: 120px;
+            text-shadow: 0 0 20px gold, 0 0 10px orange;
+        }
+        @keyframes girarTrofeo {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.3) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        @keyframes brilloTrofeo {
+            from { text-shadow: 0 0 10px gold; }
+            to { text-shadow: 0 0 30px orange, 0 0 10px gold; }
+        }
+
+        /* Globos */
+        .globo {
+            position: fixed;
+            bottom: -50px;
+            font-size: 40px;
+            animation: subirGlobo 4s linear forwards;
+            pointer-events: none;
+            z-index: 10000;
+        }
+        @keyframes subirGlobo {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100vh); opacity: 0; }
+        }
+
+        /* Otros estilos existentes (match, sumas, etc.) */
+        .match-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .match-columna { flex: 1; display: flex; flex-direction: column; gap: 15px; min-width: 150px; }
+        .match-item { background: white; border: 3px solid #E3F2FD; border-radius: 20px; padding: 20px; text-align: center; cursor: pointer; transition: 0.1s; font-size: 28px; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+        .match-item.selected { border-color: #3498DB; background: #E3F2FD; transform: scale(1.02); }
+        .match-item.matched { border-color: #4CAF50; background: #E8F5E9; opacity: 0.6; cursor: default; }
+
+        .bloque-sumas-completo { display: flex; align-items: center; justify-content: center; gap: 30px; background: white; border-radius: 40px; padding: 25px; margin: 10px; max-width: 900px; width: auto; flex-wrap: nowrap; }
+        .seccion-pregunta { display: flex; align-items: center; gap: 20px; padding: 20px; background: #F8FBFF; border-radius: 30px; }
+        .caja-suma { min-width: 120px; padding: 15px; background: white; border: 2px solid #EBF5FB; border-radius: 20px; text-align: center; }
+        .sum-val-text { font-size: 52px; font-weight: 900; color: #3498DB; }
+        .signo { font-size: 48px; font-weight: 900; color: #D5DBDB; }
+        .seccion-respuesta { display: flex; align-items: center; gap: 25px; padding: 20px; background: #FFF; border-radius: 30px; border: 2px solid #E3F2FD; }
+        .caja-incognita { min-width: 120px; height: 120px; background: #F8FBFF; border: 4px dashed #D5DBDB; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 72px; font-weight: 900; color: #D5DBDB; transition: all 0.2s; }
+        .success-pop { transform: scale(1.1); border-color: #4CAF50 !important; color: #4CAF50 !important; border-style: solid !important; background: #E8F5E9 !important; }
+        .contenedor-opciones-vertical { display: flex; flex-direction: column; gap: 12px; min-width: 150px; }
+        .btn-ans { background: white; padding: 18px 28px; border-radius: 24px; cursor: pointer; border: 3px solid #F1F4F8; text-align: center; }
+        .btn-ans span { font-size: 40px; font-weight: 900; color: #2C3E50; }
+        .suma-grid { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 10px; }
+
+        .floating-check { position: fixed; font-size: 60px; font-weight: bold; color: #4CAF50; background: rgba(255,255,255,0.9); border-radius: 50%; padding: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 2000; pointer-events: none; animation: floatFade 0.8s forwards; }
+        @keyframes floatFade { 0% { transform: scale(0.5) translateY(0); opacity: 1; } 70% { transform: scale(1.2) translateY(-30px); opacity: 1; } 100% { transform: scale(1.5) translateY(-60px); opacity: 0; } }
+        .mensaje-informativo { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #FF9800; color: white; padding: 10px 20px; border-radius: 40px; font-size: 16px; font-weight: bold; z-index: 10000; pointer-events: none; animation: fadeUpOut 2s forwards; }
+        @keyframes fadeUpOut { 0% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-50px); } }
+
+        @media (max-width: 700px) {
+            .bloque-sumas-completo { gap: 15px; padding: 15px; }
+            .caja-suma { min-width: 80px; padding: 8px; }
+            .sum-val-text { font-size: 36px; }
+            .signo { font-size: 32px; }
+            .caja-incognita { min-width: 80px; height: 80px; font-size: 48px; }
+            .btn-ans span { font-size: 28px; }
+            .btn-ans { padding: 12px 18px; }
+            .suma-grid span { font-size: 20px !important; }
+            .tarjeta-numero { width: 70px; }
+            .contar-layout { flex-direction: column; align-items: center; }
+            .cohete-area { order: -1; margin-bottom: 20px; min-height: 280px; }
+            .contar-emoji { font-size: 48px; }
+            .contar-boton { font-size: 24px; padding: 6px 12px; min-width: 60px; }
+        }
+    </style>
+</head>
+<body>
+<div id="selector-ninos">
+    <h1 class="titulo-inicio" data-i18n="welcome_title">¡Hola! ¿Cómo te llamas?</h1>
+    <input type="text" id="nombre-nino" class="entrada-nombre" placeholder="Escribe tu nombre" maxlength="20" autocomplete="off" data-i18n="name_placeholder">
+    <div class="selector-avatares">
+        <div class="avatar-opcion" data-avatar="👦🏻">👦🏻</div>
+        <div class="avatar-opcion" data-avatar="👧🏻">👧🏻</div>
+        <div class="avatar-opcion" data-avatar="🦸">🦸</div>
+        <div class="avatar-opcion" data-avatar="🐶">🐶</div>
+        <div class="avatar-opcion" data-avatar="🐱">🐱</div>
+        <div class="avatar-opcion" data-avatar="🦁">🦁</div>
+    </div>
+    <div class="idioma-selector">
+        <span>🌐 Idioma / Language:</span>
+        <select id="lang-selector-inicio">
+            <option value="es">🇪🇸 Español</option>
+            <option value="en">🇬🇧 English</option>
+        </select>
+    </div>
+    <button id="btn-jugar" class="btn-jugar" data-i18n="start_btn">COMENZAR</button>
+</div>
+
+<nav id="navbar-global">
+    <div class="nav-perfil">
+        <div id="nav-avatar" style="font-size:32px;">👦🏻</div>
+        <div id="nav-nombre" style="font-weight:900;">---</div>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; align-items: center;">
+        <div class="menu-principal">
+            <button class="btn-modo" data-modo="mision" data-i18n="btn_memorize">📖 Memorizar</button>
+            <button class="btn-modo" data-modo="dictado" data-i18n="btn_recognize">🎲 Reconocer</button>
+            <button class="btn-modo" data-modo="unir" data-i18n="btn_link">🔗 Vincular</button>
+            <button class="btn-modo" data-modo="cohete" data-i18n="btn_count">🔢 Contar</button>
+            <button class="btn-modo" data-modo="sumas" data-i18n="btn_add">➕ Sumar</button>
+        </div>
+        <div class="idioma-nav">
+            <span>🌐</span>
+            <select id="lang-selector-nav">
+                <option value="es">Español</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+        <button class="btn-cambio" id="btn-cambiar-nino" data-i18n="change_child">👥 Cambiar niño</button>
+        <button class="btn-info" id="btn-info" data-i18n="info_btn">ℹ️ Info</button>
+    </div>
+</nav>
+
+<!-- Modal de información -->
+<div id="modal-info" class="modal">
+    <div class="modal-contenido">
+        <h3 data-i18n="modal_title">📘 Acerca de este juego</h3>
+        <p><strong data-i18n="created_by">Creado por:</strong> José Luis Calero Hernández (jlcaleroh@gmail.com)</p>
+        <p data-i18n="modal_dev">Desarrollo: Utilizando herramientas de inteligencia artificial para la generación de código y recursos visuales. El diseño pedagógico y la adaptación para niños con TDAH han sido supervisados y probados manualmente para garantizar una experiencia de aprendizaje sin distracciones.</p>
+        <p><strong data-i18n="modal_focus">Enfoque pedagógico actual:</strong></p>
+        <ul style="text-align: left;">
+            <li>✅ <strong data-i18n="modal_memorize">Memorizar</strong> <span data-i18n="modal_memorize_desc">– Aprendizaje secuencial de números (1-10, 11-20, etc.) con álbum de stickers.</span></li>
+            <li>✅ <strong data-i18n="modal_recognize">Reconocer</strong> <span data-i18n="modal_recognize_desc">– Identificación aleatoria de números para reforzar agilidad visual y auditiva.</span></li>
+            <li>✅ <strong data-i18n="modal_link">Vincular</strong> <span data-i18n="modal_link_desc">– Asociación entre cantidad (stickers) y numeral (números 1-5 y 6-10).</span></li>
+            <li>✅ <strong data-i18n="modal_count">Contar</strong> <span data-i18n="modal_count_desc">– Conteo de objetos con refuerzo auditivo del número, cohete y despegue final con conteo regresivo.</span></li>
+            <li>✅ <strong data-i18n="modal_add">Sumar</strong> <span data-i18n="modal_add_desc">– Iniciación a la suma con representación visual de objetos y celebración con globos y fanfarria.</span></li>
+        </ul>
+        <p data-i18n="modal_adhd">Adaptaciones para TDAH: Instrucciones cortas y siempre con refuerzo por voz, refuerzos inmediatos (check flotante + número dicho), animaciones suaves y controladas, colores contrastados y botones grandes para evitar sobrecarga sensorial. No se utilizan temporizadores ni pausas forzadas para no interrumpir el ritmo del niño.</p>
+        <button id="cerrar-modal" data-i18n="close_btn">Cerrar</button>
+    </div>
+</div>
+
+<div class="contenedor-principal" id="main-ui">
+    <div class="seccion-juego">
+        <div class="estrellas-progreso" id="estrellas"></div>
+        <div id="modo-bienvenida" class="capa-juego" style="display:flex; justify-content:center; text-align:center; padding:40px;">
+            <div><div id="bienvenida-avatar" style="font-size:100px;">👦🏻</div>
+            <h2 data-i18n="ready_title">¿Listo para Aprender y Crecer?</h2>
+            <p data-i18n="select_challenge">Selecciona un reto</p></div>
+        </div>
+        <div id="selector-mision" class="capa-juego"><div class="selector-rangos"><h2 data-i18n="choose_range_memorize">🌟 Elige tu rango para Memorizar 🌟</h2><div id="lista-rangos-mision" class="lista-rangos"></div><button class="btn-control" style="margin-top:20px;" onclick="cambiarModo('bienvenida')" data-i18n="back_btn">🔙 Volver</button></div></div>
+        <div id="selector-dictado" class="capa-juego"><div class="selector-rangos"><h2 data-i18n="choose_range_recognize">🎤 Elige tu rango para Reconocer 🎤</h2><div id="lista-rangos-dictado" class="lista-rangos"></div><button class="btn-control" style="margin-top:20px;" onclick="cambiarModo('bienvenida')" data-i18n="back_btn">🔙 Volver</button></div></div>
+        <div id="selector-unir" class="capa-juego"><div class="selector-rangos"><h2 data-i18n="choose_range_link">🔗 Elige tu rango para Vincular 🔗</h2><div id="lista-rangos-unir" class="lista-rangos"></div><button class="btn-control" style="margin-top:20px;" onclick="cambiarModo('bienvenida')" data-i18n="back_btn">🔙 Volver</button></div></div>
+        <div id="modo-mision-container" class="capa-juego fondo-mision"><div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 5px;"><span>🌟</span><span style="font-weight: bold;" data-i18n="memorize_title">Memorizar - Secuencia</span><span>🌟</span></div><div id="album-mision-dinamico" class="album-mision"></div><div style="background:white; padding:8px 20px; border-radius:30px; margin-bottom:10px; display:flex; gap:15px; flex-wrap:wrap; justify-content:center;"><span data-i18n="find_number">🔍 Busca el número:</span><span id="mision-dinamico-target" style="font-size:48px; font-weight:900; color:#F39C12;">1</span><button class="btn-control btn-repetir-mision" data-i18n="repeat_btn">🔁 Repite</button><button class="btn-control btn-pausa-mision" data-i18n="pause_btn">❄️ Pausa</button></div><canvas id="misionDinamicoCanvas" class="game-canvas"></canvas></div>
+        <div id="modo-dictado-container" class="capa-juego fondo-dictado"><div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 5px;"><span>🎤</span><span style="font-weight: bold;" data-i18n="recognize_title">Reconocer - Al azar</span><span>🎤</span></div><div id="secuencia-dictado-dinamico" class="secuencia-numeros"></div><div style="background:white; padding:8px 20px; border-radius:30px; margin-bottom:10px; display:flex; gap:15px; flex-wrap:wrap; justify-content:center;"><span data-i18n="find_number_target">🎯 Encuentra el número:</span><span id="dictado-dinamico-target" style="font-size:48px; font-weight:900; color:#3498DB;">?</span><button class="btn-control btn-repetir-dictado" data-i18n="repeat_btn">🔁 Repite</button><button class="btn-control btn-pausa-dictado" data-i18n="pause_btn">❄️ Pausa</button></div><canvas id="dictadoDinamicoCanvas" class="game-canvas"></canvas></div>
+        <div id="modo-unir-container" class="capa-juego"><div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 10px;"><span>🔗</span><span style="font-weight: bold;" data-i18n="link_title">Vincular - Une cada grupo con su número</span><span>🔗</span></div><div class="match-container"><div class="match-columna" id="col-stickers-dinamico"></div><div class="match-columna" id="col-numeros-dinamico"></div></div></div>
+        
+        <!-- CONTAR -->
+        <div id="modo-cohete" class="capa-juego">
+            <div class="contar-layout">
+                <div class="contar-juego">
+                    <div id="cohete-pregunta" style="font-size:24px; font-weight:800; margin-bottom:15px; text-align:center;" data-i18n="how_many">¿Cuántos objetos hay?</div>
+                    <div id="cohete-objetos" class="contar-objetos-container"></div>
+                    <div class="separador"></div>
+                    <div class="contar-opciones" id="cohete-opciones"></div>
+                </div>
+                <div class="cohete-area">
+                    <div style="position: relative; display: inline-block;">
+                        <div class="cohete-imagen" id="cohete-icono">🚀</div>
+                        <div class="fuego" id="cohete-fuego">🔥</div>
+                    </div>
+                    <div id="conteo-regresivo" class="conteo-regresivo"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modo-sumas" class="capa-juego"><div class="bloque-sumas-completo" id="sumas-bloque"><div class="seccion-pregunta"><div class="caja-suma"><div id="sum-val-1" class="sum-val-text">?</div><div id="sum-grid-1" class="suma-grid"></div></div><span class="signo">+</span><div class="caja-suma"><div id="sum-val-2" class="sum-val-text">?</div><div id="sum-grid-2" class="suma-grid"></div></div></div><span class="signo">=</span><div class="seccion-respuesta"><div class="caja-incognita" id="incognita-box">?</div><div class="contenedor-opciones-vertical" id="opciones-sumas"></div></div></div></div>
+        <div id="modo-final" class="capa-juego" style="justify-content:center;">
+            <div style="font-size:70px;">🏆</div>
+            <h2 data-i18n="completed_challenge">¡Completaste el reto!</h2>
+            <button class="btn-control" onclick="cambiarModo('bienvenida')" style="margin-top:20px;" data-i18n="home_btn">🏠 VOLVER</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+    // ---------- TRADUCCIONES ----------
+    const translations = {
+        es: {
+            // Generales
+            welcome_title: "¡Hola! ¿Cómo te llamas?",
+            name_placeholder: "Escribe tu nombre",
+            start_btn: "COMENZAR",
+            change_child: "👥 Cambiar niño",
+            info_btn: "ℹ️ Info",
+            back_btn: "🔙 Volver",
+            repeat_btn: "🔁 Repite",
+            pause_btn: "❄️ Pausa",
+            home_btn: "🏠 VOLVER",
+            close_btn: "Cerrar",
+            ready_title: "¿Listo para Aprender y Crecer?",
+            select_challenge: "Selecciona un reto",
+            completed_challenge: "¡Completaste el reto!",
+            // Modos
+            btn_memorize: "📖 Memorizar",
+            btn_recognize: "🎲 Reconocer",
+            btn_link: "🔗 Vincular",
+            btn_count: "🔢 Contar",
+            btn_add: "➕ Sumar",
+            memorize_title: "Memorizar - Secuencia",
+            recognize_title: "Reconocer - Al azar",
+            link_title: "Vincular - Une cada grupo con su número",
+            choose_range_memorize: "🌟 Elige tu rango para Memorizar 🌟",
+            choose_range_recognize: "🎤 Elige tu rango para Reconocer 🎤",
+            choose_range_link: "🔗 Elige tu rango para Vincular 🔗",
+            find_number: "🔍 Busca el número:",
+            find_number_target: "🎯 Encuentra el número:",
+            how_many: "¿Cuántos objetos hay?",
+            // Mensajes voz dinámicos
+            welcome_msg: (name, isFemale) => isFemale ? `Bienvenida ${name}, lista para aprender y crecer. Selecciona un reto.` : `Bienvenido ${name}, listo para aprender y crecer. Selecciona un reto.`,
+            find_number_speech: (num) => `Busca el número ${num}`,
+            correct_msg: (num) => `¡Correcto! El número es ${num}`,
+            incorrect_count: (num) => `No, son ${num}`,
+            correct_sum: (a,b,res) => `Correcto, ${a} más ${b} es ${res}`,
+            ask_sum: (a,b) => `¿Cuánto es ${a} más ${b}?`,
+            link_pair_correct: (val) => `Muy bien, ${val}`,
+            wrong_bubble: (n, t) => `Ese es el ${n}. Busca el ${t}`,
+            tap_to_count: "Toca cada objeto para contarlo",
+            now_choose: (n) => `${n}. ¿Cuántos hay?`,
+            link_instruction: "Une cada grupo con su número",
+            repaso_sequence: "Repasemos",
+            final_congrats: (name) => `¡Completaste el reto ${name}! Eres un genio`,
+            unlock_message: (tipo, rango) => `🎉 ¡Desbloqueaste ${tipo} ${rango}! 🎉`,
+            complete_link_congrats: (name) => `${name}, ¡Felicidades por completar el reto de vincular!`,
+            complete_sums_congrats: (name) => `${name}, ¡Felicidades por completar el reto de sumas!`,
+            countdown_start: "¡Despegue!",
+            modal_title: "📘 Acerca de este juego",
+            created_by: "Creado por:",
+            modal_dev: "Desarrollo: Utilizando herramientas de inteligencia artificial para la generación de código y recursos visuales. El diseño pedagógico y la adaptación para niños con TDAH han sido supervisados y probados manualmente para garantizar una experiencia de aprendizaje sin distracciones.",
+            modal_focus: "Enfoque pedagógico actual:",
+            modal_memorize: "Memorizar",
+            modal_memorize_desc: "– Aprendizaje secuencial de números (1-10, 11-20, etc.) con álbum de stickers.",
+            modal_recognize: "Reconocer",
+            modal_recognize_desc: "– Identificación aleatoria de números para reforzar agilidad visual y auditiva.",
+            modal_link: "Vincular",
+            modal_link_desc: "– Asociación entre cantidad (stickers) y numeral (números 1-5 y 6-10).",
+            modal_count: "Contar",
+            modal_count_desc: "– Conteo uno a uno: el niño toca cada objeto y escucha el número; luego elige la cantidad. Cohete y despegue final.",
+            modal_add: "Sumar",
+            modal_add_desc: "– Iniciación a la suma con representación visual de objetos y celebración con globos y fanfarria.",
+            modal_adhd: "Adaptaciones para TDAH: Instrucciones cortas y siempre con refuerzo por voz, refuerzos inmediatos (check flotante + número dicho), animaciones suaves y controladas, colores contrastados y botones grandes para evitar sobrecarga sensorial. No se utilizan temporizadores ni pausas forzadas para no interrumpir el ritmo del niño."
+        },
+        en: {
+            welcome_title: "Hello! What's your name?",
+            name_placeholder: "Type your name",
+            start_btn: "START",
+            change_child: "👥 Change kid",
+            info_btn: "ℹ️ Info",
+            back_btn: "🔙 Back",
+            repeat_btn: "🔁 Repeat",
+            pause_btn: "❄️ Pause",
+            home_btn: "🏠 BACK",
+            close_btn: "Close",
+            ready_title: "Ready to Learn and Grow?",
+            select_challenge: "Select a challenge",
+            completed_challenge: "You completed the challenge!",
+            btn_memorize: "📖 Memorize",
+            btn_recognize: "🎲 Recognize",
+            btn_link: "🔗 Link",
+            btn_count: "🔢 Count",
+            btn_add: "➕ Add",
+            memorize_title: "Memorize - Sequence",
+            recognize_title: "Recognize - Random",
+            link_title: "Link - Match each group with its number",
+            choose_range_memorize: "🌟 Choose your range to Memorize 🌟",
+            choose_range_recognize: "🎤 Choose your range to Recognize 🎤",
+            choose_range_link: "🔗 Choose your range to Link 🔗",
+            find_number: "🔍 Find the number:",
+            find_number_target: "🎯 Find the number:",
+            how_many: "How many objects are there?",
+            welcome_msg: (name, isFemale) => `Welcome ${name}, ready to learn and grow. Select a challenge.`,
+            find_number_speech: (num) => `Find the number ${num}`,
+            correct_msg: (num) => `Correct! The number is ${num}`,
+            incorrect_count: (num) => `No, it's ${num}`,
+            correct_sum: (a,b,res) => `Correct, ${a} plus ${b} equals ${res}`,
+            ask_sum: (a,b) => `What is ${a} plus ${b}?`,
+            link_pair_correct: (val) => `Very good, ${val}`,
+            wrong_bubble: (n, t) => `That is ${n}. Find ${t}`,
+            tap_to_count: "Tap each object to count it",
+            now_choose: (n) => `${n}. How many are there?`,
+            link_instruction: "Match each group with its number",
+            repaso_sequence: "Let's review",
+            final_congrats: (name) => `You completed the challenge ${name}! You are a genius`,
+            unlock_message: (tipo, rango) => `🎉 You unlocked ${tipo} ${rango}! 🎉`,
+            complete_link_congrats: (name) => `${name}, congratulations on completing the linking challenge!`,
+            complete_sums_congrats: (name) => `${name}, congratulations on completing the addition challenge!`,
+            countdown_start: "Blast off!",
+            modal_title: "📘 About this game",
+            created_by: "Created by:",
+            modal_dev: "Development: Using artificial intelligence tools for code generation and visual resources. The pedagogical design and adaptation for children with ADHD have been manually supervised and tested to ensure a distraction-free learning experience.",
+            modal_focus: "Current pedagogical focus:",
+            modal_memorize: "Memorize",
+            modal_memorize_desc: "– Sequential number learning (1-10, 11-20, etc.) with sticker album.",
+            modal_recognize: "Recognize",
+            modal_recognize_desc: "– Random number identification to reinforce visual and auditory agility.",
+            modal_link: "Link",
+            modal_link_desc: "– Association between quantity (stickers) and numeral (numbers 1-5 and 6-10).",
+            modal_count: "Count",
+            modal_count_desc: "– One-to-one counting: the child taps each object and hears the number, then picks the amount. Rocket takeoff at the end.",
+            modal_add: "Add",
+            modal_add_desc: "– Introduction to addition with visual representation of objects and celebration with balloons and fanfare.",
+            modal_adhd: "ADHD adaptations: Short instructions always reinforced by voice, immediate reinforcements (floating check + spoken number), smooth and controlled animations, contrasting colors and large buttons to avoid sensory overload. No timers or forced pauses are used to not interrupt the child's rhythm."
+        }
+    };
+    
+    let currentLang = 'es'; // 'es' o 'en'
+    
+    function updateUITexts() {
+        const elements = document.querySelectorAll('[data-i18n]');
+        elements.forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[currentLang][key]) {
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    el.placeholder = translations[currentLang][key];
+                } else {
+                    el.innerText = translations[currentLang][key];
+                }
+            }
+        });
+        // También actualizar títulos de rangos dinámicamente? Se actualizarán al recargar selector.
+        // Actualizar textos que no tienen data-i18n pero son dinámicos (ej. en los modos de juego se maneja aparte con la función hablar)
+    }
+    
+    function setLanguage(lang) {
+        currentLang = lang;
+        updateUITexts();
+        // Cambiar selector en navbar si existe
+        const navSelect = document.getElementById('lang-selector-nav');
+        const inicioSelect = document.getElementById('lang-selector-inicio');
+        if (navSelect) navSelect.value = lang;
+        if (inicioSelect) inicioSelect.value = lang;
+        // Forzar actualización de voz para próximas locuciones
+        if (state.nino) {
+            state.voice = seleccionarVozPorNombre(state.nino);
+        } else {
+            state.voice = null;
+        }
+    }
+    
+    // ---------- CONFIGURACIÓN ----------
+    const rangosConfig = [
+        { id: 1, inicio: 1, fin: 10, stickersKey: 'default', desbloqueado: true },
+        { id: 2, inicio: 11, fin: 20, stickersKey: 'default', desbloqueado: false },
+        { id: 3, inicio: 21, fin: 30, stickersKey: 'default', desbloqueado: false },
+        { id: 4, inicio: 31, fin: 40, stickersKey: 'default', desbloqueado: false }
+    ];
+    const rangosUnirConfig = [
+        { id: 1, inicio: 1, fin: 5, nombre: "1-5", desbloqueado: true },
+        { id: 2, inicio: 6, fin: 10, nombre: "6-10", desbloqueado: false }
+    ];
+    const stickersBase = ["🦁","🦖","🚀","🍎","🐶","⭐","🐱","🍕","🐝","⚽"];
+    
+    function generarListaNumeros(inicio, fin) {
+        let lista = [];
+        for (let i = inicio; i <= fin; i++) lista.push(i);
+        return lista;
+    }
+    
+    function getStickerForNumber(numero) {
+        return stickersBase[(numero - 1) % stickersBase.length];
+    }
+    
+    function formatearCantidad(num, emoji) {
+        let decenas = Math.floor(num / 10);
+        let unidades = num % 10;
+        let resultado = '';
+        for (let i = 0; i < decenas; i++) resultado += '<span class="diez">🔟</span>';
+        for (let i = 0; i < unidades; i++) resultado += `<span>${emoji}</span>`;
+        return resultado;
+    }
+
+    // ---------- ESTADO GLOBAL ----------
+    const state = {
+        nino: "", avatar: "", modoActual: "bienvenida",
+        progreso: 0,
+        aciertosSesion: 0,
+        pausaJuego: false,
+        rangoActual: null,
+        listaNumerosActual: [],
+        burbujas: [], animando: false, canvasActual: null, ctxActual: null,
+        dictadoPendientes: [],
+        unirRangoActual: null,
+        unirListaNumerosActual: [],
+        matchPendiente: null, matchCompletadosNivel: 0, matchTotalPares: 3,
+        dictadoHechos: [],
+        bloqueado: false,
+        voice: null
+    };
+
+    const synth = window.speechSynthesis || null;
+    let voices = [];
+    function cargarVoces() { if (synth) voices = synth.getVoices(); }
+    if (synth) synth.onvoiceschanged = cargarVoces;
+    cargarVoces();
+    let hablaId = 0;
+    // Llama a cb una sola vez: al terminar la voz o, si el navegador no avisa, tras un tiempo de seguridad
+    function unaVez(cb, texto) {
+        let hecho = false;
+        const fin = () => { if (hecho) return; hecho = true; clearTimeout(t); if (cb) cb(); };
+        const t = setTimeout(fin, 1800 + String(texto).length * 110);
+        return fin;
+    }
+
+    function seleccionarVozPorNombre(nombre) {
+        cargarVoces();
+        if (currentLang === 'en') {
+            let voz = voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('female')));
+            if (!voz) voz = voices.find(v => v.lang.startsWith('en'));
+            return voz || null;
+        } else {
+            const esFemenino = nombre.toLowerCase().endsWith('a');
+            if (esFemenino) {
+                let voz = voices.find(v => v.lang.startsWith('es') && (v.name.toLowerCase().includes('sabina') || v.name.toLowerCase().includes('monica') || v.name.toLowerCase().includes('female')));
+                if (!voz) voz = voices.find(v => v.lang.startsWith('es'));
+                return voz || null;
+            } else {
+                let voz = voices.find(v => v.lang.startsWith('es') && (v.name.toLowerCase().includes('google') && !v.name.toLowerCase().includes('male')));
+                if (!voz) voz = voices.find(v => v.lang.startsWith('es') && (v.name.toLowerCase().includes('joven') || v.name.toLowerCase().includes('niño')));
+                if (!voz) voz = voices.find(v => v.lang.startsWith('es'));
+                return voz || null;
+            }
+        }
+    }
+
+    // Fanfarria grave que se repite 3 veces
+    function playFanfarriaGrave(repetir = 3) {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let repeticion = 0;
+            function tocar() {
+                if (repeticion >= repetir) return;
+                const now = audioCtx.currentTime;
+                const gainNode = audioCtx.createGain();
+                gainNode.connect(audioCtx.destination);
+                gainNode.gain.value = 0.3;
+                const frequencies = [261.63, 329.63, 392.00]; // Do3, Mi3, Sol3
+                frequencies.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    osc.connect(gainNode);
+                    osc.start(now + idx * 0.2);
+                    osc.stop(now + idx * 0.2 + 0.6);
+                });
+                repeticion++;
+                setTimeout(tocar, 800);
+            }
+            tocar();
+        } catch(e) { console.log("Audio no soportado"); }
+    }
+
+    function hablar(texto, cb) {
+        if (!synth) return cb?.();
+        synth.cancel();
+        const miId = ++hablaId;
+        const fin = unaVez(() => { if (miId === hablaId && cb) cb(); }, texto);
+        let utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = currentLang === 'en' ? 'en-US' : 'es-ES';
+        if (currentLang === 'en') {
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+        } else {
+            if (!texto.toLowerCase().includes('bienvenida') && !state.nino?.toLowerCase().endsWith('a')) {
+                utterance.rate = 1.0;
+                utterance.pitch = 1.2;
+            } else {
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+            }
+        }
+        if (state.voice) utterance.voice = state.voice;
+        utterance.onend = fin;
+        utterance.onerror = fin;
+        synth.speak(utterance);
+    }
+
+    function hablarNumero(numero, cb) {
+        let texto = numero.toString();
+        if (!synth) return cb?.();
+        const fin = unaVez(cb, texto);
+        let utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = currentLang === 'en' ? 'en-US' : 'es-ES';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.1;
+        if (state.voice) utterance.voice = state.voice;
+        utterance.onend = fin;
+        utterance.onerror = fin;
+        synth.speak(utterance);
+    }
+
+    function mostrarCheck(x, y) {
+        let check = document.createElement('div');
+        check.className = 'floating-check';
+        check.innerText = '✓';
+        if (x && y) {
+            check.style.left = x + 'px';
+            check.style.top = y + 'px';
+        } else {
+            check.style.left = '50%';
+            check.style.top = '50%';
+            check.style.transform = 'translate(-50%, -50%)';
+        }
+        document.body.appendChild(check);
+        setTimeout(() => check.remove(), 800);
+    }
+
+    function mostrarConfeti() {
+        if (typeof window.confetti === 'function') window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
+
+    function mostrarGlobos() {
+        for (let i = 0; i < 20; i++) {
+            let globo = document.createElement('div');
+            globo.className = 'globo';
+            globo.innerText = '🎈';
+            globo.style.left = Math.random() * window.innerWidth + 'px';
+            globo.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            document.body.appendChild(globo);
+            setTimeout(() => globo.remove(), 5000);
+        }
+    }
+
+    function actualizarEstrellas() {
+        const cont = document.getElementById('estrellas');
+        cont.innerHTML = '';
+        for (let i=0; i<10; i++) {
+            let estrella = document.createElement('span');
+            estrella.className = 'estrella' + (i < state.progreso ? ' activa' : '');
+            estrella.innerHTML = i < state.progreso ? '★' : '☆';
+            cont.appendChild(estrella);
+        }
+    }
+
+    // ---------- FUNCIONES DE PERSISTENCIA ----------
+    function getStorageKey(tipo, rangoId) {
+        return `${tipo}_${state.nino}_${rangoId}`;
+    }
+    function cargarProgresoMision(rangoId) {
+        let key = getStorageKey('progreso_mision', rangoId);
+        let prog = localStorage.getItem(key);
+        return prog ? parseInt(prog) : 0;
+    }
+    function guardarProgresoMision(rangoId, estrellas) {
+        let key = getStorageKey('progreso_mision', rangoId);
+        localStorage.setItem(key, estrellas);
+    }
+    function cargarProgresoDictado(rangoId) {
+        let key = getStorageKey('progreso_dictado', rangoId);
+        let prog = localStorage.getItem(key);
+        return prog ? parseInt(prog) : 0;
+    }
+    function guardarProgresoDictado(rangoId, completados) {
+        let key = getStorageKey('progreso_dictado', rangoId);
+        localStorage.setItem(key, completados);
+    }
+    function cargarHechosDictado(rangoId) {
+        try { return JSON.parse(localStorage.getItem(getStorageKey('hechos_dictado', rangoId))) || []; } catch(e) { return []; }
+    }
+    function guardarHechosDictado(rangoId, lista) {
+        localStorage.setItem(getStorageKey('hechos_dictado', rangoId), JSON.stringify(lista));
+    }
+    function cargarProgresoUnir(rangoId) {
+        let key = getStorageKey('progreso_unir', rangoId);
+        let prog = localStorage.getItem(key);
+        return prog ? parseInt(prog) : 0;
+    }
+    function guardarProgresoUnir(rangoId, estrellas) {
+        let key = getStorageKey('progreso_unir', rangoId);
+        localStorage.setItem(key, estrellas);
+    }
+    function cargarDesbloqueos(tipo) {
+        let key = `desbloqueos_${tipo}_${state.nino}`;
+        let desbloqueos = localStorage.getItem(key);
+        if (desbloqueos) return JSON.parse(desbloqueos);
+        else return [1];
+    }
+    function guardarDesbloqueos(tipo, desbloqueos) {
+        let key = `desbloqueos_${tipo}_${state.nino}`;
+        localStorage.setItem(key, JSON.stringify(desbloqueos));
+    }
+    function cargarDesbloqueosUnir() {
+        let key = `desbloqueos_unir_${state.nino}`;
+        let desbloqueos = localStorage.getItem(key);
+        if (desbloqueos) return JSON.parse(desbloqueos);
+        else return [1];
+    }
+    function guardarDesbloqueosUnir(desbloqueos) {
+        let key = `desbloqueos_unir_${state.nino}`;
+        localStorage.setItem(key, JSON.stringify(desbloqueos));
+    }
+
+    // ---------- SELECCIÓN DE RANGOS ----------
+    function mostrarSelector(tipo) {
+        if (tipo === 'unir') {
+            state.modoActual = 'selector_unir';
+            document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+            const selectorDiv = document.getElementById('selector-unir');
+            selectorDiv.style.display = 'flex';
+            const listaDiv = document.getElementById('lista-rangos-unir');
+            listaDiv.innerHTML = '';
+            const desbloqueos = cargarDesbloqueosUnir();
+            rangosUnirConfig.forEach(rango => {
+                const btn = document.createElement('div');
+                btn.className = 'btn-rango';
+                const completado = cargarProgresoUnir(rango.id) >= 10;
+                if (completado) btn.classList.add('completado');
+                else if (desbloqueos.includes(rango.id)) btn.classList.add('disponible');
+                else btn.classList.add('bloqueado');
+                btn.innerText = `${rango.inicio} - ${rango.fin} ${completado ? '✓' : ''}`;
+                if (desbloqueos.includes(rango.id) || completado) {
+                    btn.onclick = () => {
+                        if (completado) {
+                            if (confirm(currentLang === 'es' ? `Ya completaste el rango ${rango.inicio}-${rango.fin}. ¿Quieres volver a jugarlo?` : `You already completed range ${rango.inicio}-${rango.fin}. Play again?`)) {
+                                guardarProgresoUnir(rango.id, 0);
+                                iniciarUnirConRango(rango);
+                            }
+                        } else {
+                            iniciarUnirConRango(rango);
+                        }
+                    };
+                } else {
+                    btn.onclick = () => {
+                        let info = document.createElement('div');
+                        info.className = 'mensaje-informativo';
+                        info.innerText = currentLang === 'es' ? '🔒 Completa el rango anterior para desbloquear' : '🔒 Complete the previous range to unlock';
+                        document.body.appendChild(info);
+                        setTimeout(() => info.remove(), 1500);
+                    };
+                }
+                listaDiv.appendChild(btn);
+            });
+        } else {
+            state.modoActual = tipo === 'mision' ? 'selector_mision' : 'selector_dictado';
+            document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+            const selectorDiv = document.getElementById(tipo === 'mision' ? 'selector-mision' : 'selector-dictado');
+            selectorDiv.style.display = 'flex';
+            const listaDiv = document.getElementById(tipo === 'mision' ? 'lista-rangos-mision' : 'lista-rangos-dictado');
+            listaDiv.innerHTML = '';
+            const desbloqueos = cargarDesbloqueos(tipo);
+            rangosConfig.forEach(rango => {
+                const btn = document.createElement('div');
+                btn.className = 'btn-rango';
+                const completado = (tipo === 'mision' ? cargarProgresoMision(rango.id) : cargarProgresoDictado(rango.id)) >= 10;
+                if (completado) btn.classList.add('completado');
+                else if (desbloqueos.includes(rango.id)) btn.classList.add('disponible');
+                else btn.classList.add('bloqueado');
+                btn.innerText = `${rango.inicio} - ${rango.fin} ${completado ? '✓' : ''}`;
+                if (desbloqueos.includes(rango.id) || completado) {
+                    btn.onclick = () => {
+                        if (completado) {
+                            if (confirm(currentLang === 'es' ? `Ya completaste el rango ${rango.inicio}-${rango.fin}. ¿Quieres volver a jugarlo? Se reiniciará tu progreso.` : `You already completed range ${rango.inicio}-${rango.fin}. Do you want to play again? Your progress will be reset.`)) {
+                                if (tipo === 'mision') guardarProgresoMision(rango.id, 0);
+                                else { guardarProgresoDictado(rango.id, 0); guardarHechosDictado(rango.id, []); }
+                                iniciarModoConRango(tipo, rango);
+                            }
+                        } else {
+                            iniciarModoConRango(tipo, rango);
+                        }
+                    };
+                } else {
+                    btn.onclick = () => {
+                        let info = document.createElement('div');
+                        info.className = 'mensaje-informativo';
+                        info.innerText = currentLang === 'es' ? '🔒 Completa el rango anterior para desbloquear' : '🔒 Complete the previous range to unlock';
+                        document.body.appendChild(info);
+                        setTimeout(() => info.remove(), 1500);
+                    };
+                }
+                listaDiv.appendChild(btn);
+            });
+        }
+    }
+
+    function iniciarModoConRango(tipo, rango) {
+        state.rangoActual = rango;
+        state.listaNumerosActual = generarListaNumeros(rango.inicio, rango.fin);
+        let progresoGuardado = tipo === 'mision' ? cargarProgresoMision(rango.id) : cargarProgresoDictado(rango.id);
+        state.progreso = progresoGuardado;
+        if (tipo === 'mision') {
+            iniciarMisionDinamico();
+        } else {
+            iniciarDictadoDinamico();
+        }
+    }
+
+    // ---------- CLASE BUBBLE ----------
+    class Bubble {
+        constructor(val, esCorrecta, otras, canvasW, canvasH, esMision) {
+            this.val = val; this.ok = esCorrecta; this.r = 48;
+            this.canvasW = canvasW; this.canvasH = canvasH;
+            let colision = true; let intentos=0;
+            while(colision && intentos<100) {
+                this.x = Math.random()*(canvasW-2*this.r)+this.r;
+                this.y = Math.random()*(canvasH-2*this.r)+this.r;
+                colision = otras.some(b=>Math.hypot(this.x-b.x,this.y-b.y)<(this.r+b.r+10));
+                intentos++;
+            }
+            this.vx = (Math.random()-0.5)*1.2;
+            this.vy = (Math.random()-0.5)*1.2;
+            this.color = esCorrecta ? (esMision ? "#F39C12" : "#3498DB") : "#BDC3C7";
+        }
+        update() {
+            if (state.pausaJuego) return;
+            this.x += this.vx; this.y += this.vy;
+            if(this.x-this.r<0){ this.x=this.r; this.vx=-this.vx; }
+            if(this.x+this.r>this.canvasW){ this.x=this.canvasW-this.r; this.vx=-this.vx; }
+            if(this.y-this.r<0){ this.y=this.r; this.vy=-this.vy; }
+            if(this.y+this.r>this.canvasH){ this.y=this.canvasH-this.r; this.vy=-this.vy; }
+        }
+        draw(ctx) {
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+            ctx.fillStyle="white"; ctx.fill();
+            ctx.strokeStyle=this.color; ctx.lineWidth=4; ctx.stroke();
+            let fontSize = 36;
+            let text = this.val.toString();
+            if (text.length > 1) fontSize = 30;
+            if (text.length > 2) fontSize = 24;
+            ctx.font = `900 ${fontSize}px Outfit`;
+            ctx.fillStyle = this.color;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(this.val, this.x, this.y);
+        }
+    }
+
+    function generarBurbujas(target, canvas, esMision) {
+        const otras = [];
+        let pool = [target];
+        while(pool.length < 3) {
+            let r = state.listaNumerosActual.length > 0 ? state.listaNumerosActual[Math.floor(Math.random() * state.listaNumerosActual.length)] : target;
+            if(!pool.includes(r)) pool.push(r);
+        }
+        pool.sort(()=>Math.random()-0.5);
+        state.burbujas = [];
+        pool.forEach(v => {
+            state.burbujas.push(new Bubble(v, v===target, state.burbujas, canvas.logicW || canvas.width, canvas.logicH || canvas.height, esMision));
+        });
+    }
+
+    let animFrame = null;
+    function loopBurbujas() {
+        if(!state.animando) return;
+        if(!state.ctxActual || !state.canvasActual) return;
+        const ctx = state.ctxActual;
+        const canvas = state.canvasActual;
+        ctx.clearRect(0,0,canvas.logicW || canvas.width,canvas.logicH || canvas.height);
+        state.burbujas.forEach(b=>{ b.update(); b.draw(ctx); });
+        animFrame = requestAnimationFrame(loopBurbujas);
+    }
+
+    // ---------- MEMORIZAR ----------
+    function iniciarMisionDinamico() {
+        state.modoActual = "mision";
+        state.aciertosSesion = 0;
+        state.animando = true;
+        state.pausaJuego = false;
+        actualizarEstrellas();
+        document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+        const contenedor = document.getElementById('modo-mision-container');
+        contenedor.style.display = 'flex';
+        const canvas = document.getElementById('misionDinamicoCanvas');
+        state.canvasActual = canvas;
+        state.ctxActual = canvas.getContext('2d');
+        resizeCanvas(canvas);
+        crearAlbumMisionDinamico();
+        cargarSiguienteMisionDinamico();
+        if (animFrame) cancelAnimationFrame(animFrame);
+        animFrame = requestAnimationFrame(loopBurbujas);
+    }
+
+    function crearAlbumMisionDinamico() {
+        const container = document.getElementById('album-mision-dinamico');
+        container.innerHTML = '';
+        for (let i=0; i<state.listaNumerosActual.length; i++) {
+            const num = state.listaNumerosActual[i];
+            const div = document.createElement('div');
+            div.className = 'tarjeta-numero';
+            div.id = `album-d-${num}`;
+            div.innerHTML = `<div class="numero">${num}</div><div class="stickers" id="sticker-d-${num}"></div>`;
+            container.appendChild(div);
+        }
+        for (let i=0; i<state.progreso; i++) {
+            const num = state.listaNumerosActual[i];
+            marcarNumeroCompletadoDinamico(num);
+        }
+    }
+
+    function marcarNumeroCompletadoDinamico(num) {
+        const tarjeta = document.getElementById(`album-d-${num}`);
+        if (tarjeta) tarjeta.classList.add('completado');
+        const stickerDiv = document.getElementById(`sticker-d-${num}`);
+        if (stickerDiv) {
+            const emoji = getStickerForNumber(num);
+            const representacion = formatearCantidad(num, emoji);
+            stickerDiv.innerHTML = representacion;
+        }
+    }
+
+    function cargarSiguienteMisionDinamico() {
+        if (state.progreso >= state.listaNumerosActual.length) {
+            terminarModo();
+            return;
+        }
+        const target = state.listaNumerosActual[state.progreso];
+        document.getElementById('mision-dinamico-target').innerText = target;
+        generarBurbujas(target, state.canvasActual, true);
+        hablar(translations[currentLang].find_number_speech(target));
+    }
+
+    // ---------- RECONOCER ----------
+    function iniciarDictadoDinamico() {
+        state.modoActual = "dictado";
+        state.aciertosSesion = 0;
+        state.dictadoHechos = cargarHechosDictado(state.rangoActual.id).filter(n => state.listaNumerosActual.includes(n));
+        state.dictadoPendientes = state.listaNumerosActual.filter(n => !state.dictadoHechos.includes(n));
+        state.progreso = state.dictadoHechos.length;
+        state.animando = true;
+        state.pausaJuego = false;
+        actualizarEstrellas();
+        document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+        const contenedor = document.getElementById('modo-dictado-container');
+        contenedor.style.display = 'flex';
+        const canvas = document.getElementById('dictadoDinamicoCanvas');
+        state.canvasActual = canvas;
+        state.ctxActual = canvas.getContext('2d');
+        resizeCanvas(canvas);
+        crearSecuenciaDictadoDinamico();
+        cargarSiguienteDictadoDinamico();
+        if (animFrame) cancelAnimationFrame(animFrame);
+        animFrame = requestAnimationFrame(loopBurbujas);
+    }
+
+    function crearSecuenciaDictadoDinamico() {
+        const container = document.getElementById('secuencia-dictado-dinamico');
+        container.innerHTML = '';
+        for (let i=0; i<state.listaNumerosActual.length; i++) {
+            const num = state.listaNumerosActual[i];
+            const div = document.createElement('div');
+            div.className = 'num-secuencia';
+            div.id = `sec-d-${num}`;
+            div.innerText = num;
+            container.appendChild(div);
+        }
+        state.dictadoHechos.forEach(num => {
+            const div = document.getElementById(`sec-d-${num}`);
+            if (div) div.classList.add('completado');
+        });
+    }
+
+    function actualizarSecuenciaDictadoDinamico(numAcertado) {
+        const div = document.getElementById(`sec-d-${numAcertado}`);
+        if (div) div.classList.add('completado');
+        if (!state.dictadoHechos.includes(numAcertado)) state.dictadoHechos.push(numAcertado);
+        const completados = state.listaNumerosActual.length - state.dictadoPendientes.length;
+        state.progreso = completados;
+        actualizarEstrellas();
+        guardarProgresoDictado(state.rangoActual.id, completados);
+        guardarHechosDictado(state.rangoActual.id, state.dictadoHechos);
+    }
+
+    function cargarSiguienteDictadoDinamico() {
+        if (state.dictadoPendientes.length === 0) {
+            terminarModo();
+            return;
+        }
+        const randomIndex = Math.floor(Math.random() * state.dictadoPendientes.length);
+        const target = state.dictadoPendientes[randomIndex];
+        document.getElementById('dictado-dinamico-target').innerText = target;
+        generarBurbujas(target, state.canvasActual, false);
+        hablar(translations[currentLang].find_number_speech(target));
+    }
+
+    function handleBubbleClick(e, canvas, modo) {
+        if(state.pausaJuego || !state.animando || state.bloqueado) return;
+        const rect = canvas.getBoundingClientRect();
+        const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+        const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+        const x = cx * ((canvas.logicW || canvas.width)/rect.width);
+        const y = cy * ((canvas.logicH || canvas.height)/rect.height);
+        for(let b of state.burbujas) {
+            if(Math.hypot(x-b.x, y-b.y) < b.r + 8 && !b.ok) {
+                // Error suave: decir el número tocado y volver a pedir el correcto, sin castigo
+                b.color = "#FF8A80";
+                setTimeout(() => { b.color = "#BDC3C7"; }, 600);
+                const objetivo = state.burbujas.find(o => o.ok);
+                hablar(translations[currentLang].wrong_bubble(b.val, objetivo ? objetivo.val : ''));
+                return;
+            }
+            if(Math.hypot(x-b.x, y-b.y) < b.r + 8 && b.ok) {
+                const numAcertado = b.val;
+                state.bloqueado = true;
+                setTimeout(() => { state.bloqueado = false; }, 900);
+                if (modo === 'mision') {
+                    if (state.progreso >= state.listaNumerosActual.length) return;
+                    const numActual = state.listaNumerosActual[state.progreso];
+                    marcarNumeroCompletadoDinamico(numActual);
+                    state.progreso++;
+                    actualizarEstrellas();
+                    guardarProgresoMision(state.rangoActual.id, state.progreso);
+                    mostrarCheck(cx+rect.left, cy+rect.top);
+                    mostrarConfeti();
+                    hablarNumero(numActual, () => {
+                        if (state.progreso >= state.listaNumerosActual.length) {
+                            terminarModo();
+                        } else {
+                            cargarSiguienteMisionDinamico();
+                        }
+                    });
+                } else if (modo === 'dictado') {
+                    const index = state.dictadoPendientes.indexOf(numAcertado);
+                    if (index !== -1) {
+                        state.dictadoPendientes.splice(index, 1);
+                        actualizarSecuenciaDictadoDinamico(numAcertado);
+                        mostrarCheck(cx+rect.left, cy+rect.top);
+                        mostrarConfeti();
+                        hablarNumero(numAcertado, () => {
+                            if (state.dictadoPendientes.length === 0) {
+                                terminarModo();
+                                return;
+                            }
+                            cargarSiguienteDictadoDinamico();
+                        });
+                    } else {
+                        mostrarCheck(cx+rect.left, cy+rect.top);
+                        hablarNumero(numAcertado, () => {
+                            cargarSiguienteDictadoDinamico();
+                        });
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    // ---------- CONTAR ----------
+    function iniciarCohete() {
+        state.modoActual = "cohete";
+        state.progreso = 0;
+        state.aciertosSesion = 0;
+        actualizarEstrellas();
+        document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+        document.getElementById('modo-cohete').style.display = 'flex';
+        cargarCohetePregunta();
+    }
+
+    function iniciarConteoRegresivo() {
+        const conteoDiv = document.getElementById('conteo-regresivo');
+        let contador = 3;
+        conteoDiv.innerText = contador;
+        hablar('3');
+        const intervalo = setInterval(() => {
+            contador--;
+            if (contador > 0) {
+                conteoDiv.innerText = contador;
+                hablar(contador.toString());
+            } else if (contador === 0) {
+                conteoDiv.innerText = translations[currentLang].countdown_start;
+                hablar(translations[currentLang].countdown_start);
+                clearInterval(intervalo);
+                setTimeout(() => {
+                    conteoDiv.innerText = "";
+                    despegueFinal();
+                }, 1000);
+            }
+        }, 1000);
+    }
+
+    function despegueFinal() {
+        const cohete = document.getElementById('cohete-icono');
+        const fuego = document.getElementById('cohete-fuego');
+        cohete.classList.add('cohete-despegar');
+        fuego.style.animation = 'none';
+        setTimeout(() => {
+            cohete.classList.remove('cohete-despegar');
+            fuego.style.animation = 'firePulse 0.3s infinite alternate';
+            mostrarFinal();
+        }, 2500);
+    }
+
+    function cargarCohetePregunta() {
+        if (state.progreso >= 10) {
+            iniciarConteoRegresivo();
+            return;
+        }
+        let maxNum = Math.min(5 + Math.floor(state.progreso/2), 10);
+        let numero = Math.floor(Math.random() * maxNum) + 1;
+        let emoji = stickersBase[Math.floor(Math.random()*stickersBase.length)];
+        let container = document.getElementById('cohete-objetos');
+        container.innerHTML = '';
+        let contados = 0;
+        for(let i=0;i<numero;i++) {
+            let span = document.createElement('span');
+            span.className = 'contar-emoji';
+            span.innerText = emoji;
+            span.onclick = () => {
+                if (span.classList.contains('contado') || state.bloqueado) return;
+                contados++;
+                span.classList.add('contado');
+                const marca = document.createElement('span');
+                marca.className = 'marca';
+                marca.innerText = contados;
+                span.appendChild(marca);
+                if (contados === numero) hablar(translations[currentLang].now_choose(contados));
+                else hablarNumero(contados);
+            };
+            container.appendChild(span);
+        }
+        const pista = document.createElement('div');
+        pista.className = 'contar-pista';
+        pista.style.width = '100%';
+        pista.innerText = '👆 ' + translations[currentLang].tap_to_count;
+        container.appendChild(pista);
+        let opciones = [numero];
+        let posibles = [numero-1, numero+1].filter(v=>v>=1 && v<=10 && v!==numero);
+        if(posibles.length) opciones.push(posibles[0]);
+        if(posibles.length>1) opciones.push(posibles[1]);
+        else opciones.push(numero+2<=10?numero+2:numero-2);
+        opciones = opciones.sort(()=>Math.random()-0.5);
+        let optsDiv = document.getElementById('cohete-opciones');
+        optsDiv.innerHTML = '';
+        opciones.forEach(op=>{
+            let btn = document.createElement('div');
+            btn.className = 'contar-boton';
+            btn.innerText = op;
+            btn.onclick = () => {
+                if (state.bloqueado) return;
+                if(op === numero) {
+                    state.bloqueado = true;
+                    state.progreso++;
+                    actualizarEstrellas();
+                    mostrarCheck();
+                    hablar(translations[currentLang].correct_msg(numero), () => {
+                        state.bloqueado = false;
+                        cargarCohetePregunta();
+                    });
+                } else {
+                    btn.classList.add('error-flash');
+                    hablar(translations[currentLang].incorrect_count(numero));
+                    setTimeout(()=>btn.classList.remove('error-flash'),500);
+                }
+            };
+            optsDiv.appendChild(btn);
+        });
+        hablar(translations[currentLang].how_many);
+    }
+
+    // ---------- SUMAS (con globos y fanfarria repetida) ----------
+    function iniciarSumas() {
+        state.modoActual = "sumas";
+        state.progreso = 0;
+        state.aciertosSesion = 0;
+        actualizarEstrellas();
+        document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+        document.getElementById('modo-sumas').style.display = 'flex';
+        cargarSuma();
+    }
+
+    function celebrarSumas() {
+        mostrarGlobos();
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => mostrarConfeti(), i * 500);
+        }
+        playFanfarriaGrave(3);
+        const nombre = state.nino;
+        hablar(translations[currentLang].complete_sums_congrats(nombre), () => {
+            setTimeout(() => mostrarFinal(), 1000);
+        });
+    }
+
+    function cargarSuma() {
+        if (state.progreso >= 10) {
+            celebrarSumas();
+            return;
+        }
+        const inc = document.getElementById('incognita-box');
+        inc.innerText = "?";
+        inc.className = "caja-incognita";
+        const tope = state.progreso < 5 ? 3 : 5;
+        let a = Math.floor(Math.random() * tope) + 1;
+        let b = Math.floor(Math.random() * tope) + 1;
+        let res = a + b;
+        document.getElementById('sum-val-1').innerText = a;
+        document.getElementById('sum-val-2').innerText = b;
+        let emoji = stickersBase[Math.floor(Math.random()*stickersBase.length)];
+        const grid1 = document.getElementById('sum-grid-1');
+        const grid2 = document.getElementById('sum-grid-2');
+        grid1.innerHTML = '';
+        grid2.innerHTML = '';
+        for (let i=0; i<a; i++) grid1.innerHTML += `<span style="font-size:28px;">${emoji}</span>`;
+        for (let i=0; i<b; i++) grid2.innerHTML += `<span style="font-size:28px;">${emoji}</span>`;
+        let opciones = [res];
+        let posibles = [res-1, res+1, res-2, res+2].filter(v=>v>=1 && v<=10 && v!==res);
+        posibles = [...new Set(posibles)];
+        if (posibles.length >= 2) opciones.push(posibles[0], posibles[1]);
+        else if (posibles.length === 1) opciones.push(posibles[0], res+1<=10?res+1:res-1);
+        else opciones.push(res+1, res-1);
+        opciones = opciones.sort(()=>Math.random()-0.5);
+        const cont = document.getElementById('opciones-sumas');
+        cont.innerHTML = '';
+        opciones.forEach(o => {
+            const btn = document.createElement('div');
+            btn.className = 'btn-ans';
+            btn.innerHTML = `<span>${o}</span>`;
+            btn.onclick = () => {
+                if (state.bloqueado) return;
+                if (o === res) {
+                    state.bloqueado = true;
+                    inc.innerText = res;
+                    inc.classList.add('success-pop');
+                    mostrarCheck();
+                    mostrarConfeti();
+                    hablar(translations[currentLang].correct_sum(a,b,res), () => {
+                        state.progreso++;
+                        actualizarEstrellas();
+                        setTimeout(() => { state.bloqueado = false; cargarSuma(); }, 500);
+                    });
+                } else {
+                    btn.classList.add('error-flash');
+                    hablar(o.toString());
+                    setTimeout(() => btn.classList.remove('error-flash'), 500);
+                }
+            };
+            cont.appendChild(btn);
+        });
+        hablar(translations[currentLang].ask_sum(a,b));
+    }
+
+    // ---------- VINCULAR ----------
+    function iniciarUnirConRango(rango) {
+        state.modoActual = "unir";
+        state.unirRangoActual = rango;
+        state.unirListaNumerosActual = generarListaNumeros(rango.inicio, rango.fin);
+        let progresoGuardado = cargarProgresoUnir(rango.id);
+        state.progreso = progresoGuardado;
+        actualizarEstrellas();
+        document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+        const contenedor = document.getElementById('modo-unir-container');
+        contenedor.style.display = 'flex';
+        cargarUnirNivel();
+    }
+
+    function cargarUnirNivel() {
+        if (state.progreso >= 10) {
+            guardarProgresoUnir(state.unirRangoActual.id, 10);
+            let desbloqueos = cargarDesbloqueosUnir();
+            let siguienteId = state.unirRangoActual.id + 1;
+            if (!desbloqueos.includes(siguienteId) && rangosUnirConfig.some(r => r.id === siguienteId)) {
+                desbloqueos.push(siguienteId);
+                guardarDesbloqueosUnir(desbloqueos);
+                let info = document.createElement('div');
+                info.className = 'mensaje-informativo';
+                let nombreRango = rangosUnirConfig.find(r=>r.id===siguienteId).nombre;
+                info.innerText = translations[currentLang].unlock_message('Vincular', nombreRango);
+                document.body.appendChild(info);
+                setTimeout(() => info.remove(), 3000);
+            }
+            const trofeo = document.createElement('div');
+            trofeo.innerText = '🏆';
+            trofeo.style.position = 'fixed';
+            trofeo.style.top = '30%';
+            trofeo.style.left = '50%';
+            trofeo.style.transform = 'translate(-50%, -50%)';
+            trofeo.style.zIndex = '10001';
+            trofeo.classList.add('trofeo-animado');
+            document.body.appendChild(trofeo);
+            mostrarConfeti();
+            const nombre = state.nino;
+            hablar(translations[currentLang].complete_link_congrats(nombre), () => {
+                setTimeout(() => {
+                    trofeo.remove();
+                    document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+                    document.getElementById('modo-final').style.display = 'flex';
+                    hablar(translations[currentLang].final_congrats(nombre));
+                    mostrarConfeti();
+                }, 1500);
+            });
+            return;
+        }
+        const todosNumeros = state.unirListaNumerosActual;
+        let numerosSeleccionados = [];
+        let temp = [...todosNumeros];
+        for (let i = 0; i < 3; i++) {
+            if (temp.length === 0) break;
+            const randomIndex = Math.floor(Math.random() * temp.length);
+            numerosSeleccionados.push(temp[randomIndex]);
+            temp.splice(randomIndex, 1);
+        }
+        if (numerosSeleccionados.length < 3) numerosSeleccionados = todosNumeros.slice(0,3);
+        
+        let colS = document.getElementById('col-stickers-dinamico');
+        let colN = document.getElementById('col-numeros-dinamico');
+        colS.innerHTML = '';
+        colN.innerHTML = '';
+        let stickersRev = [...numerosSeleccionados].sort(()=>Math.random()-0.5);
+        let numsRev = [...numerosSeleccionados].sort(()=>Math.random()-0.5);
+        stickersRev.forEach(n => {
+            let div = document.createElement('div');
+            div.className = 'match-item';
+            let sticker = getStickerForNumber(n);
+            let txt = '';
+            for(let i=0;i<n;i++) txt += sticker;
+            div.innerHTML = txt;
+            div.dataset.val = n;
+            div.dataset.tipo = 's';
+            div.onclick = () => onMatchClickUnir(div);
+            colS.appendChild(div);
+        });
+        numsRev.forEach(n => {
+            let div = document.createElement('div');
+            div.className = 'match-item';
+            div.innerHTML = `<span style="font-size:48px; font-weight:900;">${n}</span>`;
+            div.dataset.val = n;
+            div.dataset.tipo = 'n';
+            div.onclick = () => onMatchClickUnir(div);
+            colN.appendChild(div);
+        });
+        state.matchPendiente = null;
+        state.matchCompletadosNivel = 0;
+        state.matchTotalPares = 3;
+        hablar(translations[currentLang].link_instruction);
+    }
+
+    function onMatchClickUnir(el) {
+        if(el.classList.contains('matched') || state.bloqueado) return;
+        if(state.matchPendiente && state.matchPendiente.dataset.tipo === el.dataset.tipo) {
+            state.matchPendiente.classList.remove('selected');
+            state.matchPendiente = el;
+            el.classList.add('selected');
+            return;
+        }
+        if(!state.matchPendiente) {
+            state.matchPendiente = el;
+            el.classList.add('selected');
+            return;
+        }
+        if(state.matchPendiente.dataset.val === el.dataset.val) {
+            const valor = state.matchPendiente.dataset.val;
+            state.matchPendiente.classList.add('matched');
+            el.classList.add('matched');
+            state.matchPendiente.classList.remove('selected');
+            state.matchPendiente = null;
+            state.matchCompletadosNivel++;
+            mostrarCheck();
+            mostrarConfeti();
+            const ultimoPar = state.matchCompletadosNivel >= state.matchTotalPares;
+            if (ultimoPar) state.bloqueado = true;
+            hablar(translations[currentLang].link_pair_correct(valor), () => {
+                if (ultimoPar && state.bloqueado) {
+                    state.bloqueado = false;
+                    state.progreso++;
+                    actualizarEstrellas();
+                    guardarProgresoUnir(state.unirRangoActual.id, state.progreso);
+                    cargarUnirNivel();
+                }
+            });
+        } else {
+            state.matchPendiente.classList.add('error-flash');
+            el.classList.add('error-flash');
+            setTimeout(()=>{
+                state.matchPendiente.classList.remove('error-flash','selected');
+                el.classList.remove('error-flash');
+                state.matchPendiente = null;
+            },600);
+        }
+    }
+
+    // ---------- FUNCIONES DE TERMINACIÓN Y REPASO ----------
+    function repasarSecuencia(lista, esMision) {
+        return new Promise((resolve) => {
+            let index = 0;
+            function siguiente() {
+                if (index >= lista.length) {
+                    resolve();
+                    return;
+                }
+                const numero = lista[index];
+                if (esMision) {
+                    const tarjeta = document.getElementById(`album-d-${numero}`);
+                    if (tarjeta) {
+                        tarjeta.classList.add('repaso-animate');
+                        setTimeout(() => tarjeta.classList.remove('repaso-animate'), 400);
+                    }
+                } else {
+                    const elem = document.getElementById(`sec-d-${numero}`);
+                    if (elem) {
+                        elem.classList.add('repaso-animate');
+                        setTimeout(() => elem.classList.remove('repaso-animate'), 400);
+                    }
+                }
+                hablarNumero(numero, () => {
+                    index++;
+                    setTimeout(siguiente, 500);
+                });
+            }
+            siguiente();
+        });
+    }
+
+    function mostrarFinal() {
+        state.animando = false;
+        state.bloqueado = false;
+        document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+        document.getElementById('modo-final').style.display = 'flex';
+        hablar(translations[currentLang].final_congrats(state.nino));
+        mostrarConfeti();
+    }
+
+    function terminarModo() {
+        if ((state.modoActual === 'mision' || state.modoActual === 'dictado') && state.rangoActual) {
+            if (state.modoActual === 'mision') {
+                guardarProgresoMision(state.rangoActual.id, 10);
+                let desbloqueos = cargarDesbloqueos('mision');
+                let siguienteId = state.rangoActual.id + 1;
+                if (!desbloqueos.includes(siguienteId) && rangosConfig.some(r => r.id === siguienteId)) {
+                    desbloqueos.push(siguienteId);
+                    guardarDesbloqueos('mision', desbloqueos);
+                    let info = document.createElement('div');
+                    info.className = 'mensaje-informativo';
+                    let rangoTexto = `${siguienteId*10-9}-${siguienteId*10}`;
+                    info.innerText = translations[currentLang].unlock_message('Memorizar', rangoTexto);
+                    document.body.appendChild(info);
+                    setTimeout(() => info.remove(), 3000);
+                }
+            } else {
+                guardarProgresoDictado(state.rangoActual.id, state.listaNumerosActual.length);
+                let desbloqueos = cargarDesbloqueos('dictado');
+                let siguienteId = state.rangoActual.id + 1;
+                if (!desbloqueos.includes(siguienteId) && rangosConfig.some(r => r.id === siguienteId)) {
+                    desbloqueos.push(siguienteId);
+                    guardarDesbloqueos('dictado', desbloqueos);
+                    let info = document.createElement('div');
+                    info.className = 'mensaje-informativo';
+                    let rangoTexto = `${siguienteId*10-9}-${siguienteId*10}`;
+                    info.innerText = translations[currentLang].unlock_message('Reconocer', rangoTexto);
+                    document.body.appendChild(info);
+                    setTimeout(() => info.remove(), 3000);
+                }
+            }
+            const lista = state.listaNumerosActual;
+            const esMision = (state.modoActual === 'mision');
+            state.animando = false;
+            if (animFrame) cancelAnimationFrame(animFrame);
+            if (state.ctxActual && state.canvasActual) {
+                state.ctxActual.clearRect(0, 0, state.canvasActual.logicW || state.canvasActual.width, state.canvasActual.logicH || state.canvasActual.height);
+            }
+            hablar(translations[currentLang].repaso_sequence, () => {
+                repasarSecuencia(lista, esMision).then(() => {
+                    document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+                    document.getElementById('modo-final').style.display = 'flex';
+                    hablar(translations[currentLang].final_congrats(state.nino));
+                    mostrarConfeti();
+                });
+            });
+        } else if (state.modoActual === 'cohete' || state.modoActual === 'sumas') {
+            // La finalización ya se maneja en sus respectivas funciones
+        } else {
+            state.animando = false;
+            if (animFrame) cancelAnimationFrame(animFrame);
+            document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+            document.getElementById('modo-final').style.display = 'flex';
+            hablar(translations[currentLang].final_congrats(state.nino));
+            mostrarConfeti();
+        }
+    }
+
+    // ---------- INICIO DE SESIÓN ----------
+    let avatarSeleccionado = "👦🏻";
+    document.querySelectorAll('.avatar-opcion').forEach(opt => {
+        opt.onclick = () => {
+            document.querySelectorAll('.avatar-opcion').forEach(a => a.classList.remove('seleccionado'));
+            opt.classList.add('seleccionado');
+            avatarSeleccionado = opt.dataset.avatar;
+        };
+    });
+    document.querySelector('.avatar-opcion').classList.add('seleccionado');
+
+    document.getElementById('btn-jugar').onclick = () => {
+        const nombre = document.getElementById('nombre-nino').value.trim();
+        if (nombre === "") {
+            alert(currentLang === 'es' ? "Por favor, escribe tu nombre" : "Please enter your name");
+            return;
+        }
+        iniciarSesion(nombre, avatarSeleccionado);
+    };
+
+    function animarBotonesSecuencia() {
+        const botones = [
+            document.querySelector('.btn-modo[data-modo="mision"]'),
+            document.querySelector('.btn-modo[data-modo="dictado"]'),
+            document.querySelector('.btn-modo[data-modo="unir"]'),
+            document.querySelector('.btn-modo[data-modo="cohete"]'),
+            document.querySelector('.btn-modo[data-modo="sumas"]')
+        ];
+        setTimeout(() => {
+            botones.forEach((btn, idx) => {
+                setTimeout(() => {
+                    if (btn) {
+                        btn.classList.add('btn-animate');
+                        setTimeout(() => btn.classList.remove('btn-animate'), 500);
+                    }
+                }, idx * 1000);
+            });
+        }, 1000);
+    }
+
+    function iniciarSesion(nombreCompleto, avatar) {
+        state.nino = nombreCompleto;
+        state.avatar = avatar;
+        document.getElementById('selector-ninos').style.display = 'none';
+        document.getElementById('navbar-global').style.display = 'flex';
+        document.getElementById('main-ui').style.display = 'flex';
+        document.getElementById('nav-avatar').innerText = avatar;
+        document.getElementById('nav-nombre').innerText = nombreCompleto;
+        document.getElementById('bienvenida-avatar').innerText = avatar;
+        
+        state.voice = seleccionarVozPorNombre(nombreCompleto);
+        
+        const isFemale = nombreCompleto.toLowerCase().endsWith('a');
+        let saludo = translations[currentLang].welcome_msg(nombreCompleto, isFemale);
+        
+        const speak = () => {
+            hablar(saludo, () => {
+                animarBotonesSecuencia();
+                cambiarModo('bienvenida');
+            });
+        };
+        if (voices.length === 0 && synth) {
+            let yaHablo = false;
+            const go = () => { if (yaHablo) return; yaHablo = true; state.voice = seleccionarVozPorNombre(nombreCompleto); speak(); };
+            synth.onvoiceschanged = () => { cargarVoces(); go(); };
+            setTimeout(go, 1200);
+        } else {
+            speak();
+        }
+    }
+
+    // ---------- NAVEGACIÓN ----------
+    function cambiarModo(modo) {
+        state.bloqueado = false;
+        if (synth) synth.cancel();
+        if(modo === 'mision') mostrarSelector('mision');
+        else if(modo === 'dictado') mostrarSelector('dictado');
+        else if(modo === 'unir') mostrarSelector('unir');
+        else if(modo === 'cohete') iniciarCohete();
+        else if(modo === 'sumas') iniciarSumas();
+        else if(modo === 'bienvenida') {
+            state.animando = false;
+            if (animFrame) cancelAnimationFrame(animFrame);
+            document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
+            document.getElementById('modo-bienvenida').style.display = 'flex';
+        }
+        document.querySelectorAll('.btn-modo').forEach(b=>b.classList.remove('activo'));
+        const btn = document.querySelector(`.btn-modo[data-modo="${modo}"]`);
+        if(btn) btn.classList.add('activo');
+    }
+
+    document.getElementById('btn-cambiar-nino').onclick = () => {
+        location.reload();
+    };
+    // Modal info
+    const modal = document.getElementById('modal-info');
+    document.getElementById('btn-info').onclick = () => {
+        modal.style.display = 'flex';
+    };
+    document.getElementById('cerrar-modal').onclick = () => {
+        modal.style.display = 'none';
+    };
+    window.onclick = (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+    };
+
+    document.querySelectorAll('.btn-modo').forEach(btn => {
+        btn.onclick = () => cambiarModo(btn.dataset.modo);
+    });
+    document.querySelector('.btn-pausa-mision')?.addEventListener('click', () => { state.pausaJuego = !state.pausaJuego; });
+    document.querySelector('.btn-pausa-dictado')?.addEventListener('click', () => { state.pausaJuego = !state.pausaJuego; });
+    document.querySelector('.btn-repetir-mision')?.addEventListener('click', () => { hablar(translations[currentLang].find_number_speech(document.getElementById('mision-dinamico-target').innerText)); });
+    document.querySelector('.btn-repetir-dictado')?.addEventListener('click', () => { hablar(translations[currentLang].find_number_speech(document.getElementById('dictado-dinamico-target').innerText)); });
+
+    function resizeCanvas(canvas) {
+        if(!canvas || !canvas.parentElement) return;
+        const w = canvas.parentElement.clientWidth || window.innerWidth - 20;
+        const top = canvas.getBoundingClientRect().top || 250;
+        const h = Math.max(280, Math.min(460, window.innerHeight - top - 20));
+        const dpr = window.devicePixelRatio || 1;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        canvas.logicW = w; canvas.logicH = h;
+        canvas.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+        state.burbujas.forEach(b => {
+            b.canvasW = w; b.canvasH = h;
+            b.x = Math.min(Math.max(b.x, b.r), w - b.r);
+            b.y = Math.min(Math.max(b.y, b.r), h - b.r);
+        });
+    }
+    window.onresize = () => {
+        if(state.canvasActual) resizeCanvas(state.canvasActual);
+    };
+    const misionCanvas = document.getElementById('misionDinamicoCanvas');
+    const dictadoCanvas = document.getElementById('dictadoDinamicoCanvas');
+    if (misionCanvas) {
+        misionCanvas.addEventListener('mousedown', (e)=>handleBubbleClick(e, misionCanvas, 'mision'));
+        misionCanvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); handleBubbleClick(e, misionCanvas, 'mision'); }, {passive:false});
+    }
+    if (dictadoCanvas) {
+        dictadoCanvas.addEventListener('mousedown', (e)=>handleBubbleClick(e, dictadoCanvas, 'dictado'));
+        dictadoCanvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); handleBubbleClick(e, dictadoCanvas, 'dictado'); }, {passive:false});
+    }
+    setTimeout(() => { if(state.canvasActual) resizeCanvas(state.canvasActual); }, 100);
+
+    // Inicializar selectores de idioma
+    const langSelectInicio = document.getElementById('lang-selector-inicio');
+    const langSelectNav = document.getElementById('lang-selector-nav');
+    function syncLanguage(lang) {
+        setLanguage(lang);
+        if (state.nino) {
+            state.voice = seleccionarVozPorNombre(state.nino);
+        }
+    }
+    langSelectInicio.addEventListener('change', (e) => syncLanguage(e.target.value));
+    langSelectNav.addEventListener('change', (e) => syncLanguage(e.target.value));
+    // Idioma por defecto español
+    setLanguage('es');
+</script>
+</body>
+</html>

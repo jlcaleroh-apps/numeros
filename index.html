@@ -120,6 +120,8 @@
         }
         .modal-contenido h3 { color: #3498DB; margin-top: 0; }
         .modal-contenido p { text-align: left; margin: 10px 0; font-size: 14px; }
+        .info-lista { text-align: left; padding-left: 20px; margin: 4px 0 8px; font-size: 14px; }
+        .info-lista li { margin: 5px 0; }
         .modal-contenido button {
             background: #4CAF50; color: white; border: none; border-radius: 40px;
             padding: 10px 20px; font-weight: bold; margin-top: 15px; cursor: pointer;
@@ -588,16 +590,35 @@
     <div class="modal-contenido">
         <h3 data-i18n="modal_title">📘 Acerca de este juego</h3>
         <p><strong data-i18n="created_by">Creado por:</strong> José Luis Calero Hernández (jlcaleroh@gmail.com)</p>
-        <p data-i18n="modal_dev">Desarrollo: Utilizando herramientas de inteligencia artificial para la generación de código y recursos visuales. El diseño pedagógico y la adaptación para niños con TDAH han sido supervisados y probados manualmente para garantizar una experiencia de aprendizaje sin distracciones.</p>
-        <p><strong data-i18n="modal_focus">Enfoque pedagógico actual:</strong></p>
-        <ul style="text-align: left;">
-            <li>✅ <strong data-i18n="modal_memorize">Memorizar</strong> <span data-i18n="modal_memorize_desc">– Aprendizaje secuencial de números (1-10, 11-20, etc.) con álbum de stickers.</span></li>
-            <li>✅ <strong data-i18n="modal_recognize">Reconocer</strong> <span data-i18n="modal_recognize_desc">– Identificación aleatoria de números para reforzar agilidad visual y auditiva.</span></li>
-            <li>✅ <strong data-i18n="modal_link">Vincular</strong> <span data-i18n="modal_link_desc">– Asociación entre cantidad (stickers) y numeral (números 1-5 y 6-10).</span></li>
-            <li>✅ <strong data-i18n="modal_count">Contar</strong> <span data-i18n="modal_count_desc">– Conteo de objetos con refuerzo auditivo del número, cohete y despegue final con conteo regresivo.</span></li>
-            <li>✅ <strong data-i18n="modal_add">Sumar</strong> <span data-i18n="modal_add_desc">– Iniciación a la suma con representación visual de objetos y celebración con globos y fanfarria.</span></li>
+        <p data-i18n="modal_dev"></p>
+        <p><strong data-i18n="modal_focus">Retos:</strong></p>
+        <ul class="info-lista">
+            <li>📖 <strong data-i18n="card_memorize"></strong> <span data-i18n="d_memorize"></span></li>
+            <li>🎲 <strong data-i18n="card_recognize"></strong> <span data-i18n="d_recognize"></span></li>
+            <li>🔗 <strong data-i18n="card_link"></strong> <span data-i18n="d_link"></span></li>
+            <li>🚀 <strong data-i18n="card_count"></strong> <span data-i18n="d_count"></span></li>
+            <li>➕ <strong data-i18n="card_add"></strong> <span data-i18n="d_add"></span></li>
+            <li>➖ <strong data-i18n="card_sub"></strong> <span data-i18n="d_sub"></span></li>
+            <li>🪜 <strong data-i18n="card_next"></strong> <span data-i18n="d_next"></span></li>
+            <li>⚖️ <strong data-i18n="card_compare"></strong> <span data-i18n="d_compare"></span></li>
         </ul>
-        <p data-i18n="modal_adhd">Adaptaciones para TDAH: Instrucciones cortas y siempre con refuerzo por voz, refuerzos inmediatos (check flotante + número dicho), animaciones suaves y controladas, colores contrastados y botones grandes para evitar sobrecarga sensorial. No se utilizan temporizadores ni pausas forzadas para no interrumpir el ritmo del niño.</p>
+        <p><strong data-i18n="modal_adhd_title">Adaptaciones para TDAH:</strong></p>
+        <ul class="info-lista">
+            <li data-i18n="a1"></li>
+            <li data-i18n="a2"></li>
+            <li data-i18n="a3"></li>
+            <li data-i18n="a4"></li>
+            <li data-i18n="a5"></li>
+            <li data-i18n="a6"></li>
+            <li data-i18n="a7"></li>
+        </ul>
+        <p><strong data-i18n="modal_adult_title">Para el adulto:</strong></p>
+        <ul class="info-lista">
+            <li data-i18n="p1"></li>
+            <li data-i18n="p2"></li>
+            <li data-i18n="p3"></li>
+            <li data-i18n="p4"></li>
+        </ul>
         <button id="cerrar-modal" data-i18n="close_btn">Cerrar</button>
     </div>
 </div>
@@ -752,9 +773,30 @@
             complete_sums_congrats: (name) => `${name}, ¡Felicidades por completar el reto de sumas!`,
             countdown_start: "¡Despegue!",
             modal_title: "📘 Acerca de este juego",
+            modal_focus: "Retos:",
+            d_memorize: "– Secuencia de números del 1 al 40 con álbum de stickers; decenas como marcos de 10.",
+            d_recognize: "– Escuchar un número y encontrarlo entre burbujas (con 💡 pista).",
+            d_link: "– Unir cada cantidad (en marco de 5 o 10) con su número.",
+            d_count: "– Contar tocando cada objeto, elegir la cantidad y llenar el combustible del cohete.",
+            d_add: "– Sumas con objetos en marcos de 5.",
+            d_sub: "– Objetos que se van (tachados): ¿cuántos quedan?",
+            d_next: "– Completar secuencias: hasta 40, de 2 en 2 y hacia atrás.",
+            d_compare: "– Comparar dos grupos: ¿dónde hay más o menos?",
+            modal_adhd_title: "Adaptaciones para TDAH:",
+            a1: "Instrucciones cortas, siempre habladas y repetibles con 🔊 Otra vez.",
+            a2: "Modo foco: durante el juego se oculta el menú; solo quedan 🏠 y 🔊.",
+            a3: "Refuerzo inmediato y errores amables: se dice lo que tocó y se repite la meta, sin castigo.",
+            a4: "Retos cortos con final claro (10 estrellas) y un sticker para la colección.",
+            a5: "Dificultad que se adapta a cada niño y repite más los números difíciles.",
+            a6: "Pocos estímulos que distraen: sin temporizadores, animaciones solo en los logros, respeta 'Reducir movimiento'.",
+            a7: "Pausas de movimiento cada 2 retos (ajustable o apagada).",
+            modal_adult_title: "Para el adulto:",
+            p1: "👤 Adulto (mantener presionado): niveles, progreso, números difíciles, sonido, pausas y perfiles.",
+            p2: "Cada niño tiene su perfil; se elige tocando su tarjeta.",
+            p3: "El progreso se guarda solo en este dispositivo.",
+            p4: "Instalar: Safari → Compartir → Agregar a pantalla de inicio. Funciona sin internet.",
             created_by: "Creado por:",
             modal_dev: "Desarrollo: Utilizando herramientas de inteligencia artificial para la generación de código y recursos visuales. El diseño pedagógico y la adaptación para niños con TDAH han sido supervisados y probados manualmente para garantizar una experiencia de aprendizaje sin distracciones.",
-            modal_focus: "Enfoque pedagógico actual:",
             modal_memorize: "Memorizar",
             modal_memorize_desc: "– Aprendizaje secuencial de números (1-10, 11-20, etc.) con álbum de stickers.",
             modal_recognize: "Reconocer",
@@ -842,9 +884,30 @@
             complete_sums_congrats: (name) => `${name}, congratulations on completing the addition challenge!`,
             countdown_start: "Blast off!",
             modal_title: "📘 About this game",
+            modal_focus: "Challenges:",
+            d_memorize: "– Number sequence from 1 to 40 with a sticker album; tens shown as ten-frames.",
+            d_recognize: "– Listen to a number and find it among the bubbles (with a 💡 hint).",
+            d_link: "– Match each amount (in a five- or ten-frame) with its number.",
+            d_count: "– Count by tapping each object, pick the amount and fill the rocket's fuel.",
+            d_add: "– Addition with objects in five-frames.",
+            d_sub: "– Objects that go away (crossed out): how many are left?",
+            d_next: "– Complete sequences: up to 40, by 2s and backwards.",
+            d_compare: "– Compare two groups: where are there more or fewer?",
+            modal_adhd_title: "ADHD adaptations:",
+            a1: "Short instructions, always spoken and repeatable with 🔊 Again.",
+            a2: "Focus mode: the menu hides during play; only 🏠 and 🔊 remain.",
+            a3: "Immediate feedback and gentle errors: it names what was tapped and repeats the goal, no penalty.",
+            a4: "Short challenges with a clear end (10 stars) and a sticker for the collection.",
+            a5: "Difficulty adapts to each child and repeats tricky numbers more often.",
+            a6: "Few distractions: no timers, animations only for achievements, honors 'Reduce motion'.",
+            a7: "Movement breaks every 2 challenges (adjustable or off).",
+            modal_adult_title: "For the adult:",
+            p1: "👤 Adult (press and hold): levels, progress, tricky numbers, sound, breaks and profiles.",
+            p2: "Each child has a profile, chosen by tapping their card.",
+            p3: "Progress is saved only on this device.",
+            p4: "Install: Safari → Share → Add to Home Screen. Works offline.",
             created_by: "Created by:",
             modal_dev: "Development: Using artificial intelligence tools for code generation and visual resources. The pedagogical design and adaptation for children with ADHD have been manually supervised and tested to ensure a distraction-free learning experience.",
-            modal_focus: "Current pedagogical focus:",
             modal_memorize: "Memorize",
             modal_memorize_desc: "– Sequential number learning (1-10, 11-20, etc.) with sticker album.",
             modal_recognize: "Recognize",

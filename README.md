@@ -13,6 +13,9 @@ Juego web de una sola página para que niños con TDAH aprendan números y lógi
 | 🔗 Vincular | Asociar cantidad con numeral (1-5, 6-10) |
 | 🔢 Contar | Conteo uno a uno: tocar cada objeto, escuchar el número y elegir la cantidad |
 | ➕ Sumar | Sumas con objetos en marco de 5 |
+| ➖ Restar | Objetos que "se van" (tachados) en el marco: ¿cuántos quedan? |
+| 🪜 ¿Qué sigue? | Secuencias: número que falta; luego hasta 20, de 2 en 2 y hacia atrás |
+| ⚖️ Más o menos | Comparar dos grupos en marcos de 10: dónde hay más / menos |
 
 ## Principios para TDAH
 

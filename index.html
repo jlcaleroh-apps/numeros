@@ -355,6 +355,44 @@
             .contar-emoji { font-size: 48px; }
             .contar-boton { font-size: 24px; padding: 6px 12px; min-width: 60px; }
         }
+
+        /* ===== Modo foco (TDAH): durante el juego solo queda lo esencial ===== */
+        #barra-foco { display: none; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; background: white; border-bottom: 2px solid #E1E8ED; flex-shrink: 0; }
+        body.en-juego #navbar-global { display: none !important; }
+        body.en-juego #barra-foco { display: flex; }
+        .btn-foco { background: #F1F4F8; border: none; border-radius: 40px; min-width: 56px; height: 56px; padding: 0 18px; font-size: 26px; font-family: 'Outfit', sans-serif; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-foco:active { transform: scale(0.95); }
+        .btn-foco.voz { background: #E3F2FD; }
+        .btn-foco .txt { font-size: 18px; }
+        #foco-titulo { font-size: 20px; font-weight: 900; text-align: center; flex: 1; }
+        #foco-contador { display: none; }
+        .contar-boton { font-size: 44px !important; min-width: 110px !important; padding: 12px 24px !important; border-width: 4px !important; }
+        .btn-repetir-mision, .btn-repetir-dictado { display: none !important; }
+        .menu-principal { display: none !important; }
+        body:not(.en-juego) #estrellas { display: none; }
+
+        /* ===== Inicio: tarjetas grandes, una recomendada ===== */
+        .inicio-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 20px 10px; width: 100%; max-width: 900px; margin: 0 auto; }
+        .inicio-wrap h2 { margin: 0; font-size: clamp(24px, 5vw, 34px); }
+        .tarjetas-modo { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; width: 100%; }
+        .tarjeta-modo { background: white; border: 3px solid #E1E8ED; border-radius: 28px; padding: 22px 10px; min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; font-family: 'Outfit', sans-serif; transition: transform 0.15s; position: relative; }
+        .tarjeta-modo:active { transform: scale(0.96); }
+        .tarjeta-modo .ico { font-size: 56px; line-height: 1; }
+        .tarjeta-modo .nom { font-size: 22px; font-weight: 900; color: #2C3E50; }
+        .tarjeta-modo.sugerida { border-color: #F39C12; background: #FFF8E7; }
+        .tarjeta-modo .chip { position: absolute; top: -12px; background: #F39C12; color: white; font-size: 13px; font-weight: 800; padding: 3px 12px; border-radius: 20px; }
+
+        /* ===== Cohete: quieto por defecto, sube con cada acierto ===== */
+        .cohete-imagen { animation: none !important; filter: none !important; }
+        #cohete-grupo { transition: transform 0.6s ease-out; }
+        .fuego { animation: none !important; opacity: 0.25; }
+        .fuego.encendido { opacity: 1; animation: firePulse 0.3s 4 alternate !important; }
+
+        /* ===== Respeta "reducir movimiento" del iPad ===== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+            .globo { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -404,6 +442,13 @@
     </div>
 </nav>
 
+<div id="barra-foco">
+    <button class="btn-foco" id="btn-foco-inicio" aria-label="Inicio">🏠</button>
+    <div id="foco-titulo"></div>
+    <span id="foco-contador"></span>
+    <button class="btn-foco voz" id="btn-foco-repetir" aria-label="Repetir"><span>🔊</span><span class="txt" data-i18n="repeat_word">Otra vez</span></button>
+</div>
+
 <!-- Modal de información -->
 <div id="modal-info" class="modal">
     <div class="modal-contenido">
@@ -426,10 +471,18 @@
 <div class="contenedor-principal" id="main-ui">
     <div class="seccion-juego">
         <div class="estrellas-progreso" id="estrellas"></div>
-        <div id="modo-bienvenida" class="capa-juego" style="display:flex; justify-content:center; text-align:center; padding:40px;">
-            <div><div id="bienvenida-avatar" style="font-size:100px;">👦🏻</div>
-            <h2 data-i18n="ready_title">¿Listo para Aprender y Crecer?</h2>
-            <p data-i18n="select_challenge">Selecciona un reto</p></div>
+        <div id="modo-bienvenida" class="capa-juego" style="display:flex; justify-content:flex-start; text-align:center;">
+            <div class="inicio-wrap">
+                <div id="bienvenida-avatar" style="font-size:72px;">👦🏻</div>
+                <h2 data-i18n="select_challenge">Selecciona un reto</h2>
+                <div class="tarjetas-modo">
+                    <button class="tarjeta-modo" data-modo="mision"><span class="ico">📖</span><span class="nom" data-i18n="card_memorize">Memorizar</span></button>
+                    <button class="tarjeta-modo" data-modo="dictado"><span class="ico">🎲</span><span class="nom" data-i18n="card_recognize">Reconocer</span></button>
+                    <button class="tarjeta-modo" data-modo="unir"><span class="ico">🔗</span><span class="nom" data-i18n="card_link">Vincular</span></button>
+                    <button class="tarjeta-modo" data-modo="cohete"><span class="ico">🚀</span><span class="nom" data-i18n="card_count">Contar</span></button>
+                    <button class="tarjeta-modo" data-modo="sumas"><span class="ico">➕</span><span class="nom" data-i18n="card_add">Sumar</span></button>
+                </div>
+            </div>
         </div>
         <div id="selector-mision" class="capa-juego"><div class="selector-rangos"><h2 data-i18n="choose_range_memorize">🌟 Elige tu rango para Memorizar 🌟</h2><div id="lista-rangos-mision" class="lista-rangos"></div><button class="btn-control" style="margin-top:20px;" onclick="cambiarModo('bienvenida')" data-i18n="back_btn">🔙 Volver</button></div></div>
         <div id="selector-dictado" class="capa-juego"><div class="selector-rangos"><h2 data-i18n="choose_range_recognize">🎤 Elige tu rango para Reconocer 🎤</h2><div id="lista-rangos-dictado" class="lista-rangos"></div><button class="btn-control" style="margin-top:20px;" onclick="cambiarModo('bienvenida')" data-i18n="back_btn">🔙 Volver</button></div></div>
@@ -448,7 +501,7 @@
                     <div class="contar-opciones" id="cohete-opciones"></div>
                 </div>
                 <div class="cohete-area">
-                    <div style="position: relative; display: inline-block;">
+                    <div id="cohete-grupo" style="position: relative; display: inline-block;">
                         <div class="cohete-imagen" id="cohete-icono">🚀</div>
                         <div class="fuego" id="cohete-fuego">🔥</div>
                     </div>
@@ -474,6 +527,13 @@
             // Generales
             welcome_title: "¡Hola! ¿Cómo te llamas?",
             name_placeholder: "Escribe tu nombre",
+            repeat_word: "Otra vez",
+            card_memorize: "Memorizar", card_recognize: "Reconocer", card_link: "Vincular", card_count: "Contar", card_add: "Sumar",
+            suggested: "⭐ Sigue aquí",
+            count_title: "Contar", add_title: "Sumar",
+            try_count_again: "Casi. Vamos a contar otra vez, toca cada objeto",
+            try_sum_again: "Casi. Cuenta todos los objetos",
+            halfway: "¡Vas a la mitad!",
             start_btn: "COMENZAR",
             change_child: "👥 Cambiar niño",
             info_btn: "ℹ️ Info",
@@ -537,6 +597,13 @@
         en: {
             welcome_title: "Hello! What's your name?",
             name_placeholder: "Type your name",
+            repeat_word: "Again",
+            card_memorize: "Memorize", card_recognize: "Recognize", card_link: "Link", card_count: "Count", card_add: "Add",
+            suggested: "⭐ Continue here",
+            count_title: "Count", add_title: "Add",
+            try_count_again: "Almost. Let's count again, tap each object",
+            try_sum_again: "Almost. Count all the objects",
+            halfway: "Halfway there!",
             start_btn: "START",
             change_child: "👥 Change kid",
             info_btn: "ℹ️ Info",
@@ -798,8 +865,14 @@
         setTimeout(() => check.remove(), 800);
     }
 
+    function celebrarPaso() {
+        if (state.progreso === 5) {
+            if (typeof window.confetti === 'function') window.confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 }, disableForReducedMotion: true });
+        }
+    }
+
     function mostrarConfeti() {
-        if (typeof window.confetti === 'function') window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        if (typeof window.confetti === 'function') window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, disableForReducedMotion: true });
     }
 
     function mostrarGlobos() {
@@ -814,7 +887,40 @@
         }
     }
 
+    // ---------- MODO FOCO ----------
+    function setFoco(on, titulo) {
+        document.body.classList.toggle('en-juego', !!on);
+        if (on) document.getElementById('foco-titulo').innerText = titulo || '';
+        actualizarContador();
+    }
+    function actualizarContador() {
+        const c = document.getElementById('foco-contador');
+        if (c) c.innerText = document.body.classList.contains('en-juego') ? `★ ${Math.min(state.progreso,10)}/10` : '';
+    }
+    // Instrucción principal: se guarda para el botón 🔊 "Otra vez"
+    function instruir(texto, cb) {
+        state.ultimaInstruccion = texto;
+        hablar(texto, cb);
+    }
+    function sugerirModo() {
+        let ultimo = null;
+        try { ultimo = localStorage.getItem(`ultimo_modo_${state.nino}`); } catch(e) {}
+        document.querySelectorAll('.tarjeta-modo').forEach(t => {
+            t.classList.remove('sugerida');
+            t.querySelector('.chip')?.remove();
+        });
+        const t = document.querySelector(`.tarjeta-modo[data-modo="${ultimo || 'mision'}"]`);
+        if (t) {
+            t.classList.add('sugerida');
+            const chip = document.createElement('span');
+            chip.className = 'chip';
+            chip.innerText = translations[currentLang].suggested;
+            t.appendChild(chip);
+        }
+    }
+
     function actualizarEstrellas() {
+        actualizarContador();
         const cont = document.getElementById('estrellas');
         cont.innerHTML = '';
         for (let i=0; i<10; i++) {
@@ -885,6 +991,7 @@
 
     // ---------- SELECCIÓN DE RANGOS ----------
     function mostrarSelector(tipo) {
+        setFoco(false);
         if (tipo === 'unir') {
             state.modoActual = 'selector_unir';
             document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
@@ -991,7 +1098,8 @@
             }
             this.vx = (Math.random()-0.5)*1.2;
             this.vy = (Math.random()-0.5)*1.2;
-            this.color = esCorrecta ? (esMision ? "#F39C12" : "#3498DB") : "#BDC3C7";
+            this.color = esMision ? "#F39C12" : "#3498DB";
+            this.colorBase = this.color;
         }
         update() {
             if (state.pausaJuego) return;
@@ -1045,6 +1153,7 @@
     // ---------- MEMORIZAR ----------
     function iniciarMisionDinamico() {
         state.modoActual = "mision";
+        setFoco(true, `📖 ${translations[currentLang].card_memorize} ${state.rangoActual.inicio}-${state.rangoActual.fin}`);
         state.aciertosSesion = 0;
         state.animando = true;
         state.pausaJuego = false;
@@ -1098,12 +1207,13 @@
         const target = state.listaNumerosActual[state.progreso];
         document.getElementById('mision-dinamico-target').innerText = target;
         generarBurbujas(target, state.canvasActual, true);
-        hablar(translations[currentLang].find_number_speech(target));
+        instruir(translations[currentLang].find_number_speech(target));
     }
 
     // ---------- RECONOCER ----------
     function iniciarDictadoDinamico() {
         state.modoActual = "dictado";
+        setFoco(true, `🎲 ${translations[currentLang].card_recognize} ${state.rangoActual.inicio}-${state.rangoActual.fin}`);
         state.aciertosSesion = 0;
         state.dictadoHechos = cargarHechosDictado(state.rangoActual.id).filter(n => state.listaNumerosActual.includes(n));
         state.dictadoPendientes = state.listaNumerosActual.filter(n => !state.dictadoHechos.includes(n));
@@ -1161,7 +1271,7 @@
         const target = state.dictadoPendientes[randomIndex];
         document.getElementById('dictado-dinamico-target').innerText = target;
         generarBurbujas(target, state.canvasActual, false);
-        hablar(translations[currentLang].find_number_speech(target));
+        instruir(translations[currentLang].find_number_speech(target));
     }
 
     function handleBubbleClick(e, canvas, modo) {
@@ -1175,7 +1285,7 @@
             if(Math.hypot(x-b.x, y-b.y) < b.r + 8 && !b.ok) {
                 // Error suave: decir el número tocado y volver a pedir el correcto, sin castigo
                 b.color = "#FF8A80";
-                setTimeout(() => { b.color = "#BDC3C7"; }, 600);
+                setTimeout(() => { b.color = b.colorBase; }, 600);
                 const objetivo = state.burbujas.find(o => o.ok);
                 hablar(translations[currentLang].wrong_bubble(b.val, objetivo ? objetivo.val : ''));
                 return;
@@ -1192,7 +1302,7 @@
                     actualizarEstrellas();
                     guardarProgresoMision(state.rangoActual.id, state.progreso);
                     mostrarCheck(cx+rect.left, cy+rect.top);
-                    mostrarConfeti();
+                    celebrarPaso();
                     hablarNumero(numActual, () => {
                         if (state.progreso >= state.listaNumerosActual.length) {
                             terminarModo();
@@ -1206,7 +1316,7 @@
                         state.dictadoPendientes.splice(index, 1);
                         actualizarSecuenciaDictadoDinamico(numAcertado);
                         mostrarCheck(cx+rect.left, cy+rect.top);
-                        mostrarConfeti();
+                        celebrarPaso();
                         hablarNumero(numAcertado, () => {
                             if (state.dictadoPendientes.length === 0) {
                                 terminarModo();
@@ -1230,6 +1340,8 @@
     function iniciarCohete() {
         state.modoActual = "cohete";
         state.progreso = 0;
+        setFoco(true, `🚀 ${translations[currentLang].count_title}`);
+        document.getElementById('cohete-grupo').style.transform = 'translateY(0)';
         state.aciertosSesion = 0;
         actualizarEstrellas();
         document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
@@ -1262,11 +1374,12 @@
     function despegueFinal() {
         const cohete = document.getElementById('cohete-icono');
         const fuego = document.getElementById('cohete-fuego');
+        fuego.classList.add('encendido');
         cohete.classList.add('cohete-despegar');
-        fuego.style.animation = 'none';
         setTimeout(() => {
             cohete.classList.remove('cohete-despegar');
-            fuego.style.animation = 'firePulse 0.3s infinite alternate';
+            fuego.classList.remove('encendido');
+            document.getElementById('cohete-grupo').style.transform = 'translateY(0)';
             mostrarFinal();
         }, 2500);
     }
@@ -1323,25 +1436,33 @@
                     state.progreso++;
                     actualizarEstrellas();
                     mostrarCheck();
+                    celebrarPaso();
+                    document.getElementById('cohete-grupo').style.transform = `translateY(-${state.progreso * 14}px)`;
+                    const fuego = document.getElementById('cohete-fuego');
+                    fuego.classList.add('encendido');
+                    setTimeout(() => fuego.classList.remove('encendido'), 1300);
                     hablar(translations[currentLang].correct_msg(numero), () => {
                         state.bloqueado = false;
                         cargarCohetePregunta();
                     });
                 } else {
                     btn.classList.add('error-flash');
-                    hablar(translations[currentLang].incorrect_count(numero));
+                    hablar(translations[currentLang].try_count_again);
+                    contados = 0;
+                    container.querySelectorAll('.contar-emoji').forEach(e => { e.classList.remove('contado'); e.querySelector('.marca')?.remove(); });
                     setTimeout(()=>btn.classList.remove('error-flash'),500);
                 }
             };
             optsDiv.appendChild(btn);
         });
-        hablar(translations[currentLang].how_many);
+        instruir(translations[currentLang].how_many);
     }
 
     // ---------- SUMAS (con globos y fanfarria repetida) ----------
     function iniciarSumas() {
         state.modoActual = "sumas";
         state.progreso = 0;
+        setFoco(true, `➕ ${translations[currentLang].add_title}`);
         state.aciertosSesion = 0;
         actualizarEstrellas();
         document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
@@ -1402,7 +1523,6 @@
                     inc.innerText = res;
                     inc.classList.add('success-pop');
                     mostrarCheck();
-                    mostrarConfeti();
                     hablar(translations[currentLang].correct_sum(a,b,res), () => {
                         state.progreso++;
                         actualizarEstrellas();
@@ -1410,18 +1530,19 @@
                     });
                 } else {
                     btn.classList.add('error-flash');
-                    hablar(o.toString());
+                    hablar(translations[currentLang].try_sum_again);
                     setTimeout(() => btn.classList.remove('error-flash'), 500);
                 }
             };
             cont.appendChild(btn);
         });
-        hablar(translations[currentLang].ask_sum(a,b));
+        instruir(translations[currentLang].ask_sum(a,b));
     }
 
     // ---------- VINCULAR ----------
     function iniciarUnirConRango(rango) {
         state.modoActual = "unir";
+        setFoco(true, `🔗 ${translations[currentLang].card_link} ${rango.inicio}-${rango.fin}`);
         state.unirRangoActual = rango;
         state.unirListaNumerosActual = generarListaNumeros(rango.inicio, rango.fin);
         let progresoGuardado = cargarProgresoUnir(rango.id);
@@ -1511,7 +1632,7 @@
         state.matchPendiente = null;
         state.matchCompletadosNivel = 0;
         state.matchTotalPares = 3;
-        hablar(translations[currentLang].link_instruction);
+        instruir(translations[currentLang].link_instruction);
     }
 
     function onMatchClickUnir(el) {
@@ -1535,7 +1656,6 @@
             state.matchPendiente = null;
             state.matchCompletadosNivel++;
             mostrarCheck();
-            mostrarConfeti();
             const ultimoPar = state.matchCompletadosNivel >= state.matchTotalPares;
             if (ultimoPar) state.bloqueado = true;
             hablar(translations[currentLang].link_pair_correct(valor), () => {
@@ -1731,6 +1851,8 @@
     // ---------- NAVEGACIÓN ----------
     function cambiarModo(modo) {
         state.bloqueado = false;
+        if (modo !== 'bienvenida') { try { localStorage.setItem(`ultimo_modo_${state.nino}`, modo); } catch(e) {} }
+        else { setFoco(false); sugerirModo(); }
         if (synth) synth.cancel();
         if(modo === 'mision') mostrarSelector('mision');
         else if(modo === 'dictado') mostrarSelector('dictado');
@@ -1763,9 +1885,13 @@
         if (e.target === modal) modal.style.display = 'none';
     };
 
-    document.querySelectorAll('.btn-modo').forEach(btn => {
+    document.querySelectorAll('.btn-modo, .tarjeta-modo').forEach(btn => {
         btn.onclick = () => cambiarModo(btn.dataset.modo);
     });
+    document.getElementById('btn-foco-inicio').onclick = () => cambiarModo('bienvenida');
+    document.getElementById('btn-foco-repetir').onclick = () => {
+        if (state.ultimaInstruccion && !state.bloqueado) hablar(state.ultimaInstruccion);
+    };
     document.querySelector('.btn-pausa-mision')?.addEventListener('click', () => { state.pausaJuego = !state.pausaJuego; });
     document.querySelector('.btn-pausa-dictado')?.addEventListener('click', () => { state.pausaJuego = !state.pausaJuego; });
     document.querySelector('.btn-repetir-mision')?.addEventListener('click', () => { hablar(translations[currentLang].find_number_speech(document.getElementById('mision-dinamico-target').innerText)); });

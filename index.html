@@ -7,14 +7,14 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-180.png">
     <link rel="icon" href="icon-192.png">
-    <meta name="theme-color" content="#2980B9">
+    <meta name="theme-color" content="#143f2b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Números">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <style>
         /* Estilos generales (base) - sin cambios importantes */
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Outfit:wght@400;700;900&display=swap');
 
         * { box-sizing: border-box; user-select: none; touch-action: manipulation; }
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Outfit', sans-serif; background: #F8FBFF; color: #2C3E50; }
@@ -515,9 +515,159 @@
         .marco .celda.se-va { position: relative; transition: opacity 0.6s; }
         .marco .celda.se-va.ida { opacity: 0.35; }
         .marco .celda.se-va.ida::after { content: '✕'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #E53935; font-size: 1.4em; font-weight: 900; opacity: 1; }
+
+        /* =====================================================================
+           TEMA · SELVA DE LOS NÚMEROS
+           Un mundo propio (como la ciudad de Arquitecto o el espacio de Sílabo), calmado:
+           fondo de selva quieto, tarjetas color crema, una sola tinta verde y un sol amarillo
+           para lo importante. Números grandes en Baloo 2.
+           ===================================================================== */
+        :root {
+            --selva-noche: #143f2b;   /* barras */
+            --selva: #1f6b45;         /* títulos y acentos */
+            --hoja: #3f9c58;          /* botones de respuesta */
+            --hoja-osc: #2b7a42;
+            --hoja-clara: #a8d98a;
+            --crema: #fffaf0;         /* tarjetas */
+            --arena: #fff1cf;
+            --sol: #ffc23d;           /* lo recomendado / logros */
+            --mango: #ff8a3d;
+            --rio: #3fb3c4;
+            --tinta: #22382c;
+            --borde: #d9e8cf;
+            --f-num: 'Baloo 2', 'Outfit', system-ui, sans-serif;
+        }
+        body, html { background: linear-gradient(180deg, #d6efdf 0%, #eef8e6 50%, #fff4d6 100%); color: var(--tinta); }
+        #selva-deco { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        #selva-deco svg { position: absolute; display: block; }
+        #selva-deco .suelo { left: 0; right: 0; bottom: 0; width: 100%; height: 22vh; min-height: 120px; }
+        #selva-deco .hojas-izq { left: -20px; top: 60px; width: min(240px, 28vw); }
+        #selva-deco .hojas-der { right: -20px; top: 60px; width: min(240px, 28vw); transform: scaleX(-1); }
+        #navbar-global, #barra-foco, .contenedor-principal { position: relative; z-index: 1; }
+        .seccion-juego { background: transparent; }
+
+        /* ---- barras ---- */
+        #navbar-global { background: var(--selva-noche); border-bottom: 0; box-shadow: 0 3px 0 rgba(0,0,0,.12); color: #fff; min-height: 64px; }
+        #nav-nombre { color: #fff; font-family: var(--f-num); font-size: 22px; }
+        #navbar-global .btn-cambio, #navbar-global .btn-info, #navbar-global .btn-adulto {
+            background: rgba(255,255,255,.12); color: #fff; border: 2px solid rgba(255,255,255,.28); box-shadow: none;
+            font-family: 'Outfit', sans-serif; font-size: 16px; padding: 9px 16px; }
+        #navbar-global .idioma-nav, #btn-sonido { display: none !important; }   /* idioma y sonido: panel del adulto */
+        #barra-foco { background: var(--selva-noche); border-bottom: 0; }
+        #foco-titulo { color: #fff; font-family: var(--f-num); font-size: 24px; }
+        .btn-foco { background: rgba(255,255,255,.14); color: #fff; }
+        .btn-foco.voz { background: var(--sol); color: var(--tinta); }
+        .btn-foco { white-space: nowrap; flex-direction: row; line-height: 1; }
+        .btn-foco span { line-height: 1; display: inline-block; }
+        .game-canvas { background: var(--crema); }
+
+        /* ---- quién juega ---- */
+        #selector-ninos { background: linear-gradient(180deg, #1f6b45 0%, #2f8a52 55%, #5fb86a 100%); }
+        .titulo-inicio { font-family: var(--f-num); text-shadow: 0 3px 0 rgba(0,0,0,.15); }
+        .tarjeta-perfil { background: var(--crema); border-radius: 30px; box-shadow: 0 6px 0 rgba(0,0,0,.18); }
+        .tarjeta-perfil .nom { font-family: var(--f-num); color: var(--tinta); }
+        .btn-jugar { background: var(--sol); color: var(--tinta); box-shadow: 0 6px 0 #c9902a; font-family: var(--f-num); }
+        .avatar-opcion { background: var(--crema); }
+        .avatar-opcion.seleccionado { border-color: var(--sol); background: var(--arena); }
+        .btn-voz.sel { color: var(--selva); border-color: var(--sol); }
+
+        /* ---- inicio: rincones de la selva ---- */
+        .inicio-wrap { gap: 14px; padding-top: 14px; }
+        #bienvenida-avatar { width: 108px; height: 108px; display: grid; place-items: center; border-radius: 50%;
+            background: radial-gradient(circle, #fff3c4 0 55%, var(--sol) 56% 100%); font-size: 64px !important; box-shadow: 0 6px 0 rgba(0,0,0,.08); }
+        .inicio-wrap h2 { font-family: var(--f-num); color: var(--selva); font-size: clamp(28px, 5vw, 40px); line-height: 1.1; }
+        .btn-coleccion { background: var(--crema); border: 3px solid var(--sol); color: #a35a12; box-shadow: 0 4px 0 #e2a92b; }
+        .tarjetas-modo { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+        @media (max-width: 760px) { .tarjetas-modo { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        .tarjeta-modo { background: var(--crema); border: 0; border-radius: 30px; min-height: 168px; padding: 18px 8px 16px;
+            box-shadow: 0 6px 0 var(--borde), 0 10px 22px rgba(31,107,69,.10); }
+        .tarjeta-modo:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--borde); }
+        .tarjeta-modo .ico { width: 88px; height: 88px; border-radius: 50%; display: grid; place-items: center; font-size: 50px; background: var(--c, #e6f4dd); }
+        .tarjeta-modo .nom { font-family: var(--f-num); font-size: 24px; color: var(--tinta); line-height: 1.05; }
+        .tarjeta-modo:nth-child(1) { --c: #e2f3d6; } .tarjeta-modo:nth-child(2) { --c: #ffe9c7; }
+        .tarjeta-modo:nth-child(3) { --c: #d6f0f2; } .tarjeta-modo:nth-child(4) { --c: #fde0d0; }
+        .tarjeta-modo:nth-child(5) { --c: #e9e4fb; } .tarjeta-modo:nth-child(6) { --c: #dff0e6; }
+        .tarjeta-modo:nth-child(7) { --c: #fff3c4; } .tarjeta-modo:nth-child(8) { --c: #f0e6d8; }
+        .tarjeta-modo.sugerida { background: var(--crema); box-shadow: 0 0 0 4px var(--sol), 0 6px 0 #e2a92b, 0 10px 22px rgba(255,194,61,.35); }
+        .tarjeta-modo .chip { background: var(--mango); font-family: 'Outfit', sans-serif; top: -13px; padding: 4px 14px; }
+
+        /* ---- retos: tarjeta crema centrada, más grande ---- */
+        #modo-sumas, #modo-reto, #modo-cohete, #modo-final, #modo-unir, #selector-mision, #selector-dictado, #selector-unir { justify-content: flex-start; }
+        #modo-sumas::before, #modo-reto::before, #modo-cohete::before, #modo-final::before, #modo-unir::before,
+        #selector-mision::before, #selector-dictado::before, #selector-unir::before,
+        #modo-sumas::after, #modo-reto::after, #modo-cohete::after, #modo-final::after, #modo-unir::after,
+        #selector-mision::after, #selector-dictado::after, #selector-unir::after { content: ''; flex: 1 1 0; }
+        .estrellas-progreso { gap: 8px; margin-bottom: 8px; }
+        .estrella { font-size: 30px; color: rgba(31,107,69,.22); }
+        .estrella.activa { color: var(--sol); text-shadow: 0 2px 0 #c9902a; }
+        .reto-wrap, .bloque-sumas-completo, .contar-juego, .selector-rangos {
+            background: var(--crema); border-radius: 36px; box-shadow: 0 8px 0 var(--borde), 0 14px 30px rgba(31,107,69,.10); }
+        .reto-wrap, .bloque-sumas-completo { max-width: 1000px; padding: 28px; }
+        .selector-rangos { padding: 28px; }
+        .selector-rangos h2, .reto-pregunta, #cohete-pregunta, #modo-final h2 { font-family: var(--f-num); color: var(--selva); }
+        .reto-pregunta, #cohete-pregunta { font-size: clamp(26px, 4.4vw, 36px) !important; }
+        .btn-rango { font-family: var(--f-num); font-size: 26px; padding: 14px 28px; border-radius: 22px; background: #fff; border: 3px solid var(--borde); color: var(--tinta); box-shadow: 0 4px 0 var(--borde); }
+        .btn-rango.disponible { background: var(--hoja); border-color: var(--hoja); color: #fff; box-shadow: 0 5px 0 var(--hoja-osc); }
+        .btn-rango.completado { background: #e2f3d6; border-color: var(--hoja-clara); color: var(--selva); }
+        .btn-control { background: #fff; color: var(--selva); border: 2px solid var(--borde); font-family: 'Outfit', sans-serif; }
+
+        /* respuestas: grandes, verdes, con relieve (dedos de 5 años) */
+        .contar-boton, .btn-ans { background: var(--hoja) !important; border: 0 !important; color: #fff; border-radius: 26px !important;
+            min-width: 120px !important; min-height: 110px; padding: 10px 26px !important; box-shadow: 0 7px 0 var(--hoja-osc);
+            font-family: var(--f-num) !important; font-size: 58px !important; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-ans span { font-family: var(--f-num); font-size: 58px; color: #fff; }
+        .contar-boton:active, .btn-ans:active { transform: translateY(5px); box-shadow: 0 2px 0 var(--hoja-osc); }
+        .contar-boton.error-flash, .btn-ans.error-flash { background: #f3b38f !important; box-shadow: 0 7px 0 #d98a5f; }
+        .reto-opciones, .contar-opciones { gap: 18px; }
+        .contenedor-opciones-vertical { gap: 16px; }
+
+        /* sumar */
+        .seccion-pregunta { background: #f1f8ea; border-radius: 28px; }
+        .caja-suma { border: 3px solid var(--borde); border-radius: 24px; background: #fff; }
+        .sum-val-text { font-family: var(--f-num); font-size: 68px; color: var(--selva); line-height: 1; }
+        .signo { font-family: var(--f-num); color: var(--hoja-clara); font-size: 60px; }
+        .seccion-respuesta { border: 0; background: transparent; }
+        .caja-incognita { min-width: 140px; height: 140px; font-family: var(--f-num); font-size: 84px; border-color: var(--sol); color: var(--sol); background: #fffdf5; border-radius: 28px; }
+        .marco { border-color: var(--hoja-clara); border-radius: 14px; }
+        .marco .celda { border-color: #e3eedb; }
+
+        /* otros retos */
+        .num-caja { font-family: var(--f-num); background: #fff; border-color: var(--borde); color: var(--tinta); }
+        .num-caja.hueco { border-color: var(--sol); color: #c98a12; background: #fffbe9; }
+        .resta-txt { font-family: var(--f-num); color: var(--tinta); }
+        .resta-txt .q { color: var(--mango); }
+        .grupo-cmp { background: #fff; border-color: var(--borde); }
+        .grupo-cmp .cifra { font-family: var(--f-num); color: var(--selva); }
+        .match-item { background: var(--crema); border-color: var(--borde); border-radius: 24px; font-family: var(--f-num); font-size: 40px; }
+        .match-item.selected { border-color: var(--sol); background: #fffbe9; }
+        .match-item.matched { border-color: var(--hoja); background: #e2f3d6; }
+        .separador { border-top-color: var(--hoja-clara); }
+        .cohete-area { background: #e8f5ef; border-radius: 36px; }
+        .game-canvas { border-radius: 28px; box-shadow: 0 6px 0 var(--borde); }
+        .fondo-mision, .fondo-dictado { background: transparent; }
+        .album-mision { background: var(--crema); border-color: var(--sol); }
+        .secuencia-numeros { background: var(--crema); border-color: var(--hoja-clara); }
+        .num-secuencia { font-family: var(--f-num); font-size: 22px; background: #fff; }
+        .num-secuencia.completado { background: var(--hoja); }
+        #mision-dinamico-target, #dictado-dinamico-target { font-family: var(--f-num); }
+
+        /* final y ventanas */
+        #modo-final > div:first-child { font-size: 96px !important; }
+        .premio .txt { color: #a35a12; }
+        .modal-contenido, .dlg { background: var(--crema); border-radius: 32px; }
+        .modal-contenido h3 { color: var(--selva); font-family: var(--f-num); font-size: 26px; }
+        .modal-contenido button, .dlg .si { background: var(--hoja); }
+        .panel-adulto h4 { color: var(--selva); }
+        .pausa-fondo { background: linear-gradient(180deg, #2f8a52, #5fb86a); }
+        .pausa-fondo .titulo { font-family: var(--f-num); }
     </style>
 </head>
 <body>
+<div id="selva-deco" aria-hidden="true">
+  <svg class="hojas-izq" viewBox="0 0 240 260"><path d="M10 20 C90 30 150 80 170 170 C120 150 60 110 10 20Z" fill="#7cc36f" opacity=".55"/><path d="M0 90 C70 90 120 130 140 210 C90 195 40 160 0 90Z" fill="#4fa860" opacity=".45"/><path d="M30 0 C110 0 190 40 230 110 C160 110 80 70 30 0Z" fill="#a8d98a" opacity=".5"/></svg>
+  <svg class="hojas-der" viewBox="0 0 240 260"><path d="M10 20 C90 30 150 80 170 170 C120 150 60 110 10 20Z" fill="#7cc36f" opacity=".55"/><path d="M0 90 C70 90 120 130 140 210 C90 195 40 160 0 90Z" fill="#4fa860" opacity=".45"/><path d="M30 0 C110 0 190 40 230 110 C160 110 80 70 30 0Z" fill="#a8d98a" opacity=".5"/></svg>
+  <svg class="suelo" viewBox="0 0 1200 220" preserveAspectRatio="none"><path d="M0 120 C200 60 380 90 560 110 C760 130 960 50 1200 90 L1200 220 L0 220Z" fill="#bfe3a6"/><path d="M0 170 C240 120 460 150 700 160 C900 168 1050 130 1200 140 L1200 220 L0 220Z" fill="#9ad27b"/></svg>
+</div>
 <div id="selector-ninos">
     <div id="lista-perfiles">
         <h1 class="titulo-inicio" data-i18n="who_plays">¿Quién va a jugar?</h1>
@@ -1360,6 +1510,7 @@
             html += `<h4>${tr('Sonido (este dispositivo)','Sound (this device)')}</h4>`;
             html += `<div class="fila-nivel"><span>🗣️ ${tr('Voz','Voice')}</span><span class="ctrl"><button data-sonido="voz">${sonidoActivo('voz') ? '✓' : '✕'}</button><span class="val">${sonidoActivo('voz') ? tr('sí','on') : tr('silencio','muted')}</span></span></div>`;
             html += `<div class="fila-nivel"><span>🎺 ${tr('Efectos (fanfarria)','Effects (fanfare)')}</span><span class="ctrl"><button data-sonido="efectos">${sonidoActivo('efectos') ? '✓' : '✕'}</button><span class="val">${sonidoActivo('efectos') ? tr('sí','on') : tr('silencio','muted')}</span></span></div>`;
+            html += `<h4>${tr('Idioma','Language')}</h4><div class="fila-nivel" style="justify-content:flex-start;gap:10px"><button class="no" data-lang="es" style="${currentLang==='es'?'outline:3px solid var(--sol)':''}">Español</button><button class="no" data-lang="en" style="${currentLang==='en'?'outline:3px solid var(--sol)':''}">English</button></div>`;
             html += `<h4>${tr('Prueba de voz','Voice check')}</h4><div id="pa-voz"></div>`;
             html += `<h4>${tr('Pausas de movimiento','Movement breaks')}</h4>`;
             const pc = getPausaCada();
@@ -1370,6 +1521,7 @@
             caja.innerHTML = html;
             if (window.Respaldo) Respaldo.montar(caja.querySelector('#pa-respaldo'));
             if (window.Voz) Voz.montar(caja.querySelector('#pa-voz'));
+            caja.querySelectorAll('button[data-lang]').forEach(b => b.onclick = () => { syncLanguage(b.dataset.lang); pintar(); });
             caja.querySelectorAll('.fila-nivel button[data-sonido]').forEach(b => b.onclick = () => {
                 setSonido(b.dataset.sonido, !sonidoActivo(b.dataset.sonido));
                 pintar();

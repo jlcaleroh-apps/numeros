@@ -1,5 +1,7 @@
 # Números · Misión Aprendizaje
 
+**Mundo: Selva de los números.** Fondo de selva tranquilo, tarjetas color crema, una tinta verde y un sol amarillo para lo importante; números grandes y botones de respuesta con relieve para dedos de 5 años. Durante el juego solo quedan 🏠 y 🔊; idioma y sonido están en el panel del adulto.
+
 Juego web de una sola página para que niños con TDAH aprendan números y lógica matemática básica. Funciona en iPad, tablet o computadora, en español e inglés, con voz.
 
 **Jugar:** https://jlcaleroh-apps.github.io/numeros/

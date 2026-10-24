@@ -589,8 +589,7 @@
 <div id="modal-info" class="modal">
     <div class="modal-contenido">
         <h3 data-i18n="modal_title">📘 Acerca de este juego</h3>
-        <p><strong data-i18n="created_by">Creado por:</strong> José Luis Calero Hernández (jlcaleroh@gmail.com)</p>
-        <p data-i18n="modal_dev"></p>
+        <p><strong data-i18n="modal_what_title">Qué es:</strong> <span data-i18n="modal_what"></span></p>
         <p><strong data-i18n="modal_focus">Retos:</strong></p>
         <ul class="info-lista">
             <li>📖 <strong data-i18n="card_memorize"></strong> <span data-i18n="d_memorize"></span></li>
@@ -602,7 +601,7 @@
             <li>🪜 <strong data-i18n="card_next"></strong> <span data-i18n="d_next"></span></li>
             <li>⚖️ <strong data-i18n="card_compare"></strong> <span data-i18n="d_compare"></span></li>
         </ul>
-        <p><strong data-i18n="modal_adhd_title">Adaptaciones para TDAH:</strong></p>
+        <p><strong data-i18n="modal_adhd_title">Principios para TDAH:</strong></p>
         <ul class="info-lista">
             <li data-i18n="a1"></li>
             <li data-i18n="a2"></li>
@@ -617,9 +616,11 @@
             <li data-i18n="p1"></li>
             <li data-i18n="p2"></li>
             <li data-i18n="p3"></li>
-            <li data-i18n="p4"></li>
         </ul>
+        <p><strong data-i18n="offline_title">Sin Internet:</strong> <span data-i18n="p4"></span></p>
         <p><strong data-i18n="contact_lbl">Contacto:</strong> <a href="mailto:jlcaleroh@gmail.com">jlcaleroh@gmail.com</a></p>
+        <p><strong data-i18n="created_by">Creado por:</strong> José Luis Calero Hernández</p>
+        <p data-i18n="modal_dev" style="font-size:13px;opacity:.75"></p>
         <button id="cerrar-modal" data-i18n="close_btn">Cerrar</button>
     </div>
 </div>
@@ -777,7 +778,8 @@
             complete_sums_congrats: (name) => `${name}, ¡Felicidades por completar el reto de sumas!`,
             countdown_start: "¡Despegue!",
             modal_title: "📘 Acerca de este juego",
-            modal_focus: "Retos:",
+            modal_focus: "Cómo se juega (retos):",
+            modal_what_title: "Qué es:", modal_what: "Juego para que niños y niñas con TDAH aprendan números y lógica matemática básica, con voz y retos cortos.", offline_title: "Sin Internet:",
             d_memorize: "– Secuencia de números del 1 al 40 con álbum de stickers; decenas como marcos de 10.",
             d_recognize: "– Escuchar un número y encontrarlo entre burbujas (con 💡 pista).",
             d_link: "– Unir cada cantidad (en marco de 5 o 10) con su número.",
@@ -786,7 +788,7 @@
             d_sub: "– Objetos que se van (tachados): ¿cuántos quedan?",
             d_next: "– Completar secuencias: hasta 40, de 2 en 2 y hacia atrás.",
             d_compare: "– Comparar dos grupos: ¿dónde hay más o menos?",
-            modal_adhd_title: "Adaptaciones para TDAH:",
+            modal_adhd_title: "Principios para TDAH:",
             contact_lbl: "Contacto:",
             a1: "Instrucciones cortas, siempre habladas y repetibles con 🔊 Otra vez.",
             a2: "Modo foco: durante el juego se oculta el menú; solo quedan 🏠 y 🔊.",
@@ -796,9 +798,9 @@
             a6: "Pocos estímulos que distraen: sin temporizadores, animaciones solo en los logros, respeta 'Reducir movimiento'.",
             a7: "Pausas de movimiento cada 2 retos (ajustable o apagada).",
             modal_adult_title: "Para el adulto:",
-            p1: "👤 Adulto (mantener presionado): niveles, progreso, números difíciles, sonido, pausas y perfiles.",
+            p1: "👤 Adulto (mantener presionado 2 segundos): niveles, progreso, números difíciles, sonido, prueba de voz, pausas, perfiles y respaldo.",
             p2: "Cada niño tiene su perfil; se elige tocando su tarjeta.",
-            p3: "El progreso se guarda solo en este dispositivo.",
+            p3: "El progreso se guarda en este dispositivo. Usa «Guardar respaldo» en el panel del adulto para no perderlo.",
             p4: "Instalar: Safari → Compartir → Agregar a pantalla de inicio. Funciona sin internet.",
             created_by: "Creado por:",
             modal_dev: "Desarrollo: Utilizando herramientas de inteligencia artificial para la generación de código y recursos visuales. El diseño pedagógico y la adaptación para niños con TDAH han sido supervisados y probados manualmente para garantizar una experiencia de aprendizaje sin distracciones.",
@@ -889,7 +891,8 @@
             complete_sums_congrats: (name) => `${name}, congratulations on completing the addition challenge!`,
             countdown_start: "Blast off!",
             modal_title: "📘 About this game",
-            modal_focus: "Challenges:",
+            modal_focus: "How to play (challenges):",
+            modal_what_title: "What it is:", modal_what: "A game that helps children with ADHD learn numbers and basic math logic, with voice and short challenges.", offline_title: "Offline:",
             d_memorize: "– Number sequence from 1 to 40 with a sticker album; tens shown as ten-frames.",
             d_recognize: "– Listen to a number and find it among the bubbles (with a 💡 hint).",
             d_link: "– Match each amount (in a five- or ten-frame) with its number.",
@@ -898,7 +901,7 @@
             d_sub: "– Objects that go away (crossed out): how many are left?",
             d_next: "– Complete sequences: up to 40, by 2s and backwards.",
             d_compare: "– Compare two groups: where are there more or fewer?",
-            modal_adhd_title: "ADHD adaptations:",
+            modal_adhd_title: "ADHD principles:",
             contact_lbl: "Contact:",
             a1: "Short instructions, always spoken and repeatable with 🔊 Again.",
             a2: "Focus mode: the menu hides during play; only 🏠 and 🔊 remain.",
@@ -908,9 +911,9 @@
             a6: "Few distractions: no timers, animations only for achievements, honors 'Reduce motion'.",
             a7: "Movement breaks every 2 challenges (adjustable or off).",
             modal_adult_title: "For the adult:",
-            p1: "👤 Adult (press and hold): levels, progress, tricky numbers, sound, breaks and profiles.",
+            p1: "👤 Adult (press and hold for 2 seconds): levels, progress, tricky numbers, sound, voice check, breaks, profiles and backup.",
             p2: "Each child has a profile, chosen by tapping their card.",
-            p3: "Progress is saved only on this device.",
+            p3: "Progress is saved on this device. Use “Save backup” in the adult panel so it is not lost.",
             p4: "Install: Safari → Share → Add to Home Screen. Works offline.",
             created_by: "Created by:",
             modal_dev: "Development: Using artificial intelligence tools for code generation and visual resources. The pedagogical design and adaptation for children with ADHD have been manually supervised and tested to ensure a distraction-free learning experience.",

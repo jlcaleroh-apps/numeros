@@ -508,7 +508,7 @@
         <div id="selector-dictado" class="capa-juego"><div class="selector-rangos"><h2 data-i18n="choose_range_recognize">🎤 Elige tu rango para Reconocer 🎤</h2><div id="lista-rangos-dictado" class="lista-rangos"></div><button class="btn-control" style="margin-top:20px;" onclick="cambiarModo('bienvenida')" data-i18n="back_btn">🔙 Volver</button></div></div>
         <div id="selector-unir" class="capa-juego"><div class="selector-rangos"><h2 data-i18n="choose_range_link">🔗 Elige tu rango para Vincular 🔗</h2><div id="lista-rangos-unir" class="lista-rangos"></div><button class="btn-control" style="margin-top:20px;" onclick="cambiarModo('bienvenida')" data-i18n="back_btn">🔙 Volver</button></div></div>
         <div id="modo-mision-container" class="capa-juego fondo-mision"><div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 5px;"><span>🌟</span><span style="font-weight: bold;" data-i18n="memorize_title">Memorizar - Secuencia</span><span>🌟</span></div><div id="album-mision-dinamico" class="album-mision"></div><div style="background:white; padding:8px 20px; border-radius:30px; margin-bottom:10px; display:flex; gap:15px; flex-wrap:wrap; justify-content:center;"><span data-i18n="find_number">🔍 Busca el número:</span><span id="mision-dinamico-target" style="font-size:48px; font-weight:900; color:#F39C12;">1</span><button class="btn-control btn-repetir-mision" data-i18n="repeat_btn">🔁 Repite</button><button class="btn-control btn-pausa-mision" data-i18n="pause_btn">❄️ Pausa</button></div><canvas id="misionDinamicoCanvas" class="game-canvas"></canvas></div>
-        <div id="modo-dictado-container" class="capa-juego fondo-dictado"><div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 5px;"><span>🎤</span><span style="font-weight: bold;" data-i18n="recognize_title">Reconocer - Al azar</span><span>🎤</span></div><div id="secuencia-dictado-dinamico" class="secuencia-numeros"></div><div style="background:white; padding:8px 20px; border-radius:30px; margin-bottom:10px; display:flex; gap:15px; flex-wrap:wrap; justify-content:center;"><span data-i18n="find_number_target">🎯 Encuentra el número:</span><span id="dictado-dinamico-target" style="font-size:48px; font-weight:900; color:#3498DB;">?</span><button class="btn-control btn-repetir-dictado" data-i18n="repeat_btn">🔁 Repite</button><button class="btn-control btn-pausa-dictado" data-i18n="pause_btn">❄️ Pausa</button></div><canvas id="dictadoDinamicoCanvas" class="game-canvas"></canvas></div>
+        <div id="modo-dictado-container" class="capa-juego fondo-dictado"><div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 5px;"><span>🎤</span><span style="font-weight: bold;" data-i18n="recognize_title">Reconocer - Al azar</span><span>🎤</span></div><div id="secuencia-dictado-dinamico" class="secuencia-numeros"></div><div style="background:white; padding:8px 20px; border-radius:30px; margin-bottom:10px; display:flex; gap:15px; flex-wrap:wrap; justify-content:center;"><span data-i18n="find_number_target">🎯 Encuentra el número:</span><span id="dictado-dinamico-target" style="font-size:48px; font-weight:900; color:#3498DB; min-width:60px; text-align:center;">👂</span><button class="btn-control" id="btn-pista" data-i18n="hint_btn">💡 Pista</button><button class="btn-control btn-repetir-dictado" data-i18n="repeat_btn">🔁 Repite</button><button class="btn-control btn-pausa-dictado" data-i18n="pause_btn">❄️ Pausa</button></div><canvas id="dictadoDinamicoCanvas" class="game-canvas"></canvas></div>
         <div id="modo-unir-container" class="capa-juego"><div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 10px;"><span>🔗</span><span style="font-weight: bold;" data-i18n="link_title">Vincular - Une cada grupo con su número</span><span>🔗</span></div><div class="match-container"><div class="match-columna" id="col-stickers-dinamico"></div><div class="match-columna" id="col-numeros-dinamico"></div></div></div>
         
         <!-- CONTAR -->
@@ -552,6 +552,7 @@
             welcome_title: "¡Hola! ¿Cómo te llamas?",
             name_placeholder: "Escribe tu nombre",
             repeat_word: "Otra vez",
+            hint_btn: "💡 Pista",
             card_memorize: "Memorizar", card_recognize: "Reconocer", card_link: "Vincular", card_count: "Contar", card_add: "Sumar",
             suggested: "⭐ Sigue aquí",
             count_title: "Contar", add_title: "Sumar",
@@ -582,7 +583,7 @@
             choose_range_recognize: "🎤 Elige tu rango para Reconocer 🎤",
             choose_range_link: "🔗 Elige tu rango para Vincular 🔗",
             find_number: "🔍 Busca el número:",
-            find_number_target: "🎯 Encuentra el número:",
+            find_number_target: "🎯 Escucha y encuentra:",
             how_many: "¿Cuántos objetos hay?",
             // Mensajes voz dinámicos
             welcome_msg: (name, isFemale) => isFemale ? `Bienvenida ${name}, lista para aprender y crecer. Selecciona un reto.` : `Bienvenido ${name}, listo para aprender y crecer. Selecciona un reto.`,
@@ -622,6 +623,7 @@
             welcome_title: "Hello! What's your name?",
             name_placeholder: "Type your name",
             repeat_word: "Again",
+            hint_btn: "💡 Hint",
             card_memorize: "Memorize", card_recognize: "Recognize", card_link: "Link", card_count: "Count", card_add: "Add",
             suggested: "⭐ Continue here",
             count_title: "Count", add_title: "Add",
@@ -651,7 +653,7 @@
             choose_range_recognize: "🎤 Choose your range to Recognize 🎤",
             choose_range_link: "🔗 Choose your range to Link 🔗",
             find_number: "🔍 Find the number:",
-            find_number_target: "🎯 Find the number:",
+            find_number_target: "🎯 Listen and find:",
             how_many: "How many objects are there?",
             welcome_msg: (name, isFemale) => `Welcome ${name}, ready to learn and grow. Select a challenge.`,
             find_number_speech: (num) => `Find the number ${num}`,
@@ -921,6 +923,38 @@
         }
     }
 
+    // ---------- DIFICULTAD ADAPTATIVA ----------
+    // Cada niño tiene su nivel por juego. 3 aciertos seguidos a la primera → sube; 2 errores seguidos → baja.
+    const NIVELES = {
+        contar:   { min: 3, max: 10, inicio: 5 },  // máximo de objetos
+        sumar:    { min: 2, max: 5,  inicio: 3 },  // máximo de cada sumando
+        burbujas: { min: 1, max: 4,  inicio: 2 }   // 1 quietas · 2 lentas · 3 normales · 4 rápidas
+    };
+    const VELOCIDAD_BURBUJAS = [0, 0, 0.45, 0.9, 1.3];
+    const rachas = {};
+    function getNivel(juego) {
+        const cfg = NIVELES[juego];
+        let n = NaN;
+        try { n = parseInt(localStorage.getItem(`nivel_${juego}_${state.nino}`)); } catch(e) {}
+        return isNaN(n) ? cfg.inicio : Math.min(cfg.max, Math.max(cfg.min, n));
+    }
+    function setNivel(juego, n) {
+        try { localStorage.setItem(`nivel_${juego}_${state.nino}`, n); } catch(e) {}
+    }
+    // resultado: 'acierto' (a la primera) | 'error'
+    function registrar(juego, resultado) {
+        const r = rachas[juego] || (rachas[juego] = { aciertos: 0, errores: 0 });
+        const cfg = NIVELES[juego];
+        let nivel = getNivel(juego);
+        if (resultado === 'acierto') {
+            r.aciertos++; r.errores = 0;
+            if (r.aciertos >= 3 && nivel < cfg.max) { setNivel(juego, nivel + 1); r.aciertos = 0; }
+        } else {
+            r.errores++; r.aciertos = 0;
+            if (r.errores >= 2 && nivel > cfg.min) { setNivel(juego, nivel - 1); r.errores = 0; }
+        }
+    }
+
     // ---------- MODO FOCO ----------
     function setFoco(on, titulo) {
         document.body.classList.toggle('en-juego', !!on);
@@ -1130,8 +1164,10 @@
                 colision = otras.some(b=>Math.hypot(this.x-b.x,this.y-b.y)<(this.r+b.r+10));
                 intentos++;
             }
-            this.vx = (Math.random()-0.5)*1.2;
-            this.vy = (Math.random()-0.5)*1.2;
+            const vel = VELOCIDAD_BURBUJAS[getNivel('burbujas')];
+            const ang = Math.random() * Math.PI * 2;
+            this.vx = Math.cos(ang) * vel;
+            this.vy = Math.sin(ang) * vel;
             this.color = esMision ? "#F39C12" : "#3498DB";
             this.colorBase = this.color;
         }
@@ -1240,6 +1276,7 @@
         }
         const target = state.listaNumerosActual[state.progreso];
         document.getElementById('mision-dinamico-target').innerText = target;
+        state.erroresPregunta = 0;
         generarBurbujas(target, state.canvasActual, true);
         instruir(translations[currentLang].find_number_speech(target));
     }
@@ -1296,6 +1333,14 @@
         guardarHechosDictado(state.rangoActual.id, state.dictadoHechos);
     }
 
+    // En Reconocer el número solo se escucha; la pista lo muestra escrito
+    function mostrarPista(ver) {
+        const el = document.getElementById('dictado-dinamico-target');
+        if (!el) return;
+        el.innerText = ver ? state.dictadoTarget : '👂';
+        if (ver) state.pistaUsada = true; else state.pistaUsada = false;
+    }
+
     function cargarSiguienteDictadoDinamico() {
         if (state.dictadoPendientes.length === 0) {
             terminarModo();
@@ -1303,7 +1348,9 @@
         }
         const randomIndex = Math.floor(Math.random() * state.dictadoPendientes.length);
         const target = state.dictadoPendientes[randomIndex];
-        document.getElementById('dictado-dinamico-target').innerText = target;
+        state.dictadoTarget = target;
+        state.erroresPregunta = 0;
+        mostrarPista(false);
         generarBurbujas(target, state.canvasActual, false);
         instruir(translations[currentLang].find_number_speech(target));
     }
@@ -1321,11 +1368,16 @@
                 b.color = "#FF8A80";
                 setTimeout(() => { b.color = b.colorBase; }, 600);
                 const objetivo = state.burbujas.find(o => o.ok);
+                state.erroresPregunta = (state.erroresPregunta || 0) + 1;
+                if (state.erroresPregunta === 1) registrar('burbujas', 'error');
                 hablar(translations[currentLang].wrong_bubble(b.val, objetivo ? objetivo.val : ''));
+                // Andamiaje: tras 2 intentos en Reconocer, se muestra la pista sola
+                if (modo === 'dictado' && state.erroresPregunta >= 2) mostrarPista(true);
                 return;
             }
             if(Math.hypot(x-b.x, y-b.y) < b.r + 8 && b.ok) {
                 const numAcertado = b.val;
+                if (!state.erroresPregunta && !state.pistaUsada) registrar('burbujas', 'acierto');
                 state.bloqueado = true;
                 setTimeout(() => { state.bloqueado = false; }, 900);
                 if (modo === 'mision') {
@@ -1426,7 +1478,8 @@
             iniciarConteoRegresivo();
             return;
         }
-        let maxNum = Math.min(5 + Math.floor(state.progreso/2), 10);
+        let maxNum = getNivel('contar');
+        let erroresPregunta = 0;
         let numero = Math.floor(Math.random() * maxNum) + 1;
         let emoji = stickersBase[Math.floor(Math.random()*stickersBase.length)];
         let container = document.getElementById('cohete-objetos');
@@ -1469,6 +1522,7 @@
             btn.onclick = () => {
                 if (state.bloqueado) return;
                 if(op === numero) {
+                    if (erroresPregunta === 0) registrar('contar', 'acierto');
                     state.bloqueado = true;
                     state.progreso++;
                     actualizarEstrellas();
@@ -1484,6 +1538,8 @@
                     });
                 } else {
                     btn.classList.add('error-flash');
+                    erroresPregunta++;
+                    if (erroresPregunta === 1) registrar('contar', 'error');
                     hablar(translations[currentLang].try_count_again);
                     contados = 0;
                     container.querySelectorAll('.contar-emoji').forEach(e => { e.classList.remove('contado'); e.querySelector('.marca')?.remove(); });
@@ -1527,7 +1583,8 @@
         const inc = document.getElementById('incognita-box');
         inc.innerText = "?";
         inc.className = "caja-incognita";
-        const tope = state.progreso < 5 ? 3 : 5;
+        const tope = getNivel('sumar');
+        let erroresPregunta = 0;
         let a = Math.floor(Math.random() * tope) + 1;
         let b = Math.floor(Math.random() * tope) + 1;
         let res = a + b;
@@ -1554,6 +1611,7 @@
             btn.onclick = () => {
                 if (state.bloqueado) return;
                 if (o === res) {
+                    if (erroresPregunta === 0) registrar('sumar', 'acierto');
                     state.bloqueado = true;
                     inc.innerText = res;
                     inc.classList.add('success-pop');
@@ -1565,6 +1623,8 @@
                     });
                 } else {
                     btn.classList.add('error-flash');
+                    erroresPregunta++;
+                    if (erroresPregunta === 1) registrar('sumar', 'error');
                     hablar(translations[currentLang].try_sum_again);
                     setTimeout(() => btn.classList.remove('error-flash'), 500);
                 }
@@ -1923,6 +1983,11 @@
     document.querySelectorAll('.btn-modo, .tarjeta-modo').forEach(btn => {
         btn.onclick = () => cambiarModo(btn.dataset.modo);
     });
+    document.getElementById('btn-pista').onclick = () => {
+        if (state.dictadoTarget == null) return;
+        mostrarPista(true);
+        hablar(translations[currentLang].find_number_speech(state.dictadoTarget));
+    };
     document.getElementById('btn-foco-inicio').onclick = () => cambiarModo('bienvenida');
     document.getElementById('btn-foco-repetir').onclick = () => {
         if (state.ultimaInstruccion && !state.bloqueado) hablar(state.ultimaInstruccion);

@@ -384,7 +384,12 @@
 
         /* ===== Cohete: quieto por defecto, sube con cada acierto ===== */
         .cohete-imagen { animation: none !important; filter: none !important; }
-        #cohete-grupo { transition: transform 0.6s ease-out; }
+        .cohete-area { justify-content: flex-end !important; padding-bottom: 40px !important; }
+        .cohete-area::after { content: ''; position: absolute; bottom: 24px; left: 25%; right: 15%; height: 8px; background: #BCAAA4; border-radius: 4px; }
+        #combustible { position: absolute; left: 18px; top: 20px; bottom: 40px; width: 22px; display: flex; flex-direction: column-reverse; gap: 4px; background: white; border: 3px solid #FFCC80; border-radius: 14px; padding: 3px; }
+        #combustible .seg { flex: 1; border-radius: 6px; background: #F1F4F8; transition: background 0.4s; }
+        #combustible .seg.lleno { background: #FF9800; }
+        .cohete-despegar { animation: despegueLargo 2.5s forwards !important; }
         .fuego { animation: none !important; opacity: 0.25; }
         .fuego.encendido { opacity: 1; animation: firePulse 0.3s 4 alternate !important; }
 
@@ -501,6 +506,10 @@
                     <div class="contar-opciones" id="cohete-opciones"></div>
                 </div>
                 <div class="cohete-area">
+                    <div id="combustible" aria-hidden="true">
+                        <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
+                        <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
+                    </div>
                     <div id="cohete-grupo" style="position: relative; display: inline-block;">
                         <div class="cohete-imagen" id="cohete-icono">🚀</div>
                         <div class="fuego" id="cohete-fuego">🔥</div>
@@ -1341,12 +1350,16 @@
         state.modoActual = "cohete";
         state.progreso = 0;
         setFoco(true, `🚀 ${translations[currentLang].count_title}`);
-        document.getElementById('cohete-grupo').style.transform = 'translateY(0)';
+        actualizarCombustible();
         state.aciertosSesion = 0;
         actualizarEstrellas();
         document.querySelectorAll('.capa-juego').forEach(c => c.style.display = 'none');
         document.getElementById('modo-cohete').style.display = 'flex';
         cargarCohetePregunta();
+    }
+
+    function actualizarCombustible() {
+        document.querySelectorAll('#combustible .seg').forEach((seg, i) => seg.classList.toggle('lleno', i < state.progreso));
     }
 
     function iniciarConteoRegresivo() {
@@ -1379,7 +1392,6 @@
         setTimeout(() => {
             cohete.classList.remove('cohete-despegar');
             fuego.classList.remove('encendido');
-            document.getElementById('cohete-grupo').style.transform = 'translateY(0)';
             mostrarFinal();
         }, 2500);
     }
@@ -1437,7 +1449,7 @@
                     actualizarEstrellas();
                     mostrarCheck();
                     celebrarPaso();
-                    document.getElementById('cohete-grupo').style.transform = `translateY(-${state.progreso * 14}px)`;
+                    actualizarCombustible();
                     const fuego = document.getElementById('cohete-fuego');
                     fuego.classList.add('encendido');
                     setTimeout(() => fuego.classList.remove('encendido'), 1300);

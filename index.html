@@ -694,6 +694,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script src="respaldo.js"></script>
+<script src="voz.js"></script>
 <script>
     // ---------- TRADUCCIONES ----------
     const translations = {
@@ -1121,7 +1122,9 @@
                 utterance.pitch = 1.0;
             }
         }
-        if (state.voice) utterance.voice = state.voice;
+        const vElegida = window.Voz && Voz.elegida(currentLang);   // voz elegida por el adulto en "Prueba de voz"
+        if (vElegida) { utterance.voice = vElegida; utterance.lang = vElegida.lang; } else if (state.voice) utterance.voice = state.voice;
+        if (window.Voz) utterance.rate *= Voz.velocidad(currentLang);
         utterance.onend = fin;
         utterance.onerror = fin;
         synth.speak(utterance);
@@ -1138,7 +1141,9 @@
         utterance.lang = currentLang === 'en' ? 'en-US' : 'es-ES';
         utterance.rate = 1.0;
         utterance.pitch = 1.1;
-        if (state.voice) utterance.voice = state.voice;
+        const vElegida = window.Voz && Voz.elegida(currentLang);   // voz elegida por el adulto en "Prueba de voz"
+        if (vElegida) { utterance.voice = vElegida; utterance.lang = vElegida.lang; } else if (state.voice) utterance.voice = state.voice;
+        if (window.Voz) utterance.rate *= Voz.velocidad(currentLang);
         utterance.onend = fin;
         utterance.onerror = fin;
         synth.speak(utterance);
@@ -1267,6 +1272,22 @@
         idioma: () => currentLang, claseBoton: 'no', sinTitulo: true,
         contarNinos: () => { try { return (JSON.parse(localStorage.getItem('perfiles')) || []).length; } catch (e) { return null; } },
     });
+    // Prueba de voz: componente común voz.js (igual en todas las apps de jlcaleroh-apps)
+    if (window.Voz) Voz.iniciar({
+        app: 'numeros', idioma: () => currentLang, claseBoton: 'no', sinTitulo: true,
+        ejemplos: L => ['1','2','3','7','11','15','20','30','100'].map(n => ({t:n, d:n})),
+        frase: L => L === 'en' ? 'Great job! You found seven.' : '¡Muy bien! Encontraste el siete.',
+        decir: t => {
+            if (!window.speechSynthesis) return;
+            speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(t);
+            u.lang = currentLang === 'en' ? 'en-US' : 'es-ES';
+            const v = Voz.elegida(currentLang) || state.voice;
+            if (v) { u.voice = v; u.lang = v.lang; }
+            u.rate = Voz.velocidad(currentLang);
+            speechSynthesis.speak(u);
+        },
+    });
     function esc(t) { return String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
     function abrirPanelAdulto() {
         const fondo = document.createElement('div');
@@ -1309,6 +1330,7 @@
             html += `<h4>${tr('Sonido (este dispositivo)','Sound (this device)')}</h4>`;
             html += `<div class="fila-nivel"><span>🗣️ ${tr('Voz','Voice')}</span><span class="ctrl"><button data-sonido="voz">${sonidoActivo('voz') ? '✓' : '✕'}</button><span class="val">${sonidoActivo('voz') ? tr('sí','on') : tr('silencio','muted')}</span></span></div>`;
             html += `<div class="fila-nivel"><span>🎺 ${tr('Efectos (fanfarria)','Effects (fanfare)')}</span><span class="ctrl"><button data-sonido="efectos">${sonidoActivo('efectos') ? '✓' : '✕'}</button><span class="val">${sonidoActivo('efectos') ? tr('sí','on') : tr('silencio','muted')}</span></span></div>`;
+            html += `<h4>${tr('Prueba de voz','Voice check')}</h4><div id="pa-voz"></div>`;
             html += `<h4>${tr('Pausas de movimiento','Movement breaks')}</h4>`;
             const pc = getPausaCada();
             html += `<div class="fila-nivel"><span>🤸 ${tr('Pausa cada','Break every')}</span><span class="ctrl"><button data-pausa="-1">−</button><span class="val">${pc === 0 ? tr('apagado','off') : `${pc} ${tr('retos','challenges')}`}</span><button data-pausa="1">+</button></span></div>`;
@@ -1317,6 +1339,7 @@
             html += `<div class="fila" style="margin-top:22px"><button class="no peligro" id="pa-reset">🗑️ ${tr('Borrar progreso','Erase progress')}</button><button class="no peligro" id="pa-quitar">👋 ${tr('Quitar perfil','Remove profile')}</button><button class="si" id="pa-cerrar">${tr('Listo','Done')}</button></div>`;
             caja.innerHTML = html;
             if (window.Respaldo) Respaldo.montar(caja.querySelector('#pa-respaldo'));
+            if (window.Voz) Voz.montar(caja.querySelector('#pa-voz'));
             caja.querySelectorAll('.fila-nivel button[data-sonido]').forEach(b => b.onclick = () => {
                 setSonido(b.dataset.sonido, !sonidoActivo(b.dataset.sonido));
                 pintar();

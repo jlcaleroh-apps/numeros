@@ -697,6 +697,7 @@
 <script src="respaldo.js"></script>
 <script src="voz.js"></script>
 <script src="adulto.js"></script>
+<script src="pantalla.js"></script>
 <script>
     // ---------- ALMACENAMIENTO CON PREFIJO (estándar jlcaleroh-apps) ----------
     // Todas las apps comparten el dominio jlcaleroh-apps.github.io: cada clave de Números empieza con "numeros:".
@@ -1299,6 +1300,8 @@
         idioma: () => currentLang, claseBoton: 'no', sinTitulo: true,
         contarNinos: () => { try { return (JSON.parse(NS.getItem('perfiles')) || []).length; } catch (e) { return null; } },
     });
+    // Pantalla encendida mientras juega: componente común pantalla.js
+    if (window.Pantalla) Pantalla.iniciar({ minutos: 3 });
     // Prueba de voz: componente común voz.js (igual en todas las apps de jlcaleroh-apps)
     if (window.Voz) Voz.iniciar({
         app: 'numeros', idioma: () => currentLang, claseBoton: 'no', sinTitulo: true,

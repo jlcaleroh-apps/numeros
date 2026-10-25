@@ -768,6 +768,8 @@
             <li data-i18n="p3"></li>
         </ul>
         <p><strong data-i18n="offline_title">Sin Internet:</strong> <span data-i18n="p4"></span></p>
+        <p><strong data-i18n="other_apps">Otras apps:</strong></p>
+        <div id="otras-apps"></div>
         <p><strong data-i18n="contact_lbl">Contacto:</strong> <a href="mailto:jlcaleroh@gmail.com">jlcaleroh@gmail.com</a></p>
         <p><strong data-i18n="created_by">Creado por:</strong> José Luis Calero Hernández</p>
         <p data-i18n="modal_dev" style="font-size:13px;opacity:.75"></p>
@@ -848,6 +850,7 @@
 <script src="voz.js"></script>
 <script src="adulto.js"></script>
 <script src="pantalla.js"></script>
+<script src="apps.js"></script>
 <script>
     // ---------- ALMACENAMIENTO CON PREFIJO (estándar jlcaleroh-apps) ----------
     // Todas las apps comparten el dominio jlcaleroh-apps.github.io: cada clave de Números empieza con "numeros:".
@@ -952,7 +955,7 @@
             countdown_start: "¡Despegue!",
             modal_title: "📘 Acerca de este juego",
             modal_focus: "Cómo se juega (retos):",
-            modal_what_title: "Qué es:", modal_what: "Juego para que niños y niñas con TDAH aprendan números y lógica matemática básica, con voz y retos cortos.", offline_title: "Sin Internet:",
+            modal_what_title: "Qué es:", modal_what: "Juego para que niños y niñas con TDAH aprendan números y lógica matemática básica, con voz y retos cortos.", offline_title: "Sin Internet:", other_apps: "Otras apps:",
             d_memorize: "– Secuencia de números del 1 al 40 con álbum de stickers; decenas como marcos de 10.",
             d_recognize: "– Escuchar un número y encontrarlo entre burbujas (con 💡 pista).",
             d_link: "– Unir cada cantidad (en marco de 5 o 10) con su número.",
@@ -1065,7 +1068,7 @@
             countdown_start: "Blast off!",
             modal_title: "📘 About this game",
             modal_focus: "How to play (challenges):",
-            modal_what_title: "What it is:", modal_what: "A game that helps children with ADHD learn numbers and basic math logic, with voice and short challenges.", offline_title: "Offline:",
+            modal_what_title: "What it is:", modal_what: "A game that helps children with ADHD learn numbers and basic math logic, with voice and short challenges.", offline_title: "Offline:", other_apps: "Other apps:",
             d_memorize: "– Number sequence from 1 to 40 with a sticker album; tens shown as ten-frames.",
             d_recognize: "– Listen to a number and find it among the bubbles (with a 💡 hint).",
             d_link: "– Match each amount (in a five- or ten-frame) with its number.",
@@ -1107,6 +1110,7 @@
     let currentLang = 'es'; // 'es' o 'en'
     
     function updateUITexts() {
+        if (window.Apps) Apps.montar(document.getElementById('otras-apps'), { actual: 'numeros', idioma: currentLang });   // componente común apps.js
         const elements = document.querySelectorAll('[data-i18n]');
         elements.forEach(el => {
             const key = el.getAttribute('data-i18n');

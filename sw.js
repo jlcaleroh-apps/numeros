@@ -1,7 +1,7 @@
 // Números · service worker: funciona sin internet.
 // Página: primero la red (para recibir mejoras), si no hay internet usa la copia guardada.
 // Íconos, fuentes y librerías: primero la copia guardada.
-const CACHE = 'numeros-v9';
+const CACHE = 'numeros-v10';
 const BASICOS = ['./', './index.html', './manifest.json', './respaldo.js', './voz.js', './adulto.js', './pantalla.js', './apps.js', './icon-192.png', './icon-512.png', './icon-180.png'];
 
 self.addEventListener('install', e => {
@@ -10,7 +10,7 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('numeros-') && k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
